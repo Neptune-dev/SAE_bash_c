@@ -3,9 +3,6 @@
 #include <errno.h>
 #include <string.h>
 
-#define KEY_SIZE 150
-#define FILENAME_SIZE 150
-
 
 static char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -19,9 +16,41 @@ static char encoding_table[] = {
                             };
 
 // encode une chaine en base 64
-char * Code64 (char *s)
+char * Encode64 (char *s)
 {
+    int fileLen = strlen(s); // taille du fichier
+    int outputLen = fileLen * sizeof(char) * 8; //taille du fichier en bit
 
+    while (outputLen % 24 != 0)
+    {
+        outputLen++; //on ajoute des bits jusqu'à ce que ce soit multiple de 24
+    }
+
+    char* temp = (char*) malloc (outputLen / 8); // fichier de travail
+    char* output = (char*) malloc (outputLen / 8); // fichier de retour
+
+    for (int i = 0; i < fileLen; i++)
+    {
+        temp[i] = s[i]; // on copie tout le tableau
+    }
+
+    char spare;
+
+    for (int i = 0; i < fileLen; i++)
+    {
+        output[i] = encoding_table[temp[0] >> 2]; // on prend les 6 premiers bits et les transforme en caractère de la table 64
+
+        for (int y = 0; y < fileLen; y++)
+        {
+            temp[y] <<= 6; //on pousse à gauche les deux bits de fin de caractère
+            temp[y] = temp[y] | (temp[y+1] >> 2);
+        }
+        spare = s[i];
+        spare <<= 6;
+    }
+
+    free(temp);
+    return output;
 }
 
 // decode une chaine de la base 64
@@ -31,18 +60,18 @@ char * Decode64 (char *s)
 }
 
 
-// chiffre la chaine table par le chiffre de Vignère avec la clé répétée key
+// chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
 char * Vignere (char* key, char* s)
 {
-    int size = strlen(s); //taille du fichier
+    int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
-    char* output = (char*) malloc (sizeof(char) * size); //fichier de retour
+    char* output = (char*) malloc (sizeof(char) * fileLen); //fichier de retour
 
     int charIndex;
     int offset;
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < fileLen; i++)
     {
         // on trouve l'index du caractère de notre chaine
         charIndex = 0;
@@ -119,11 +148,12 @@ int main (int argc, char * argv[])
 
     char* file = ReadFile(argv[2]);
 
-    char* encryptedFile = Decode64(Vignere(argv[1], Code64(file)));
+    char* encryptedFile = Decode64(Vignere(argv[1], Encode64(file)));
+    free(file);
 
     ReplaceFile(argv[2], encryptedFile);
 
-    free(file);
+    
     free(encryptedFile);
 
     return 0;

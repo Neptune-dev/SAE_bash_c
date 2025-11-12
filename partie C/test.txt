@@ -1,1 +1,1 @@
-abcd
+Ceci est un exemple de fichier, au format texte.
