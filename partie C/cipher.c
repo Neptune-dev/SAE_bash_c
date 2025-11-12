@@ -19,36 +19,31 @@ static char encoding_table[] = {
 char * Encode64 (char *s)
 {
     int fileLen = strlen(s); // taille du fichier
-    int outputLen = fileLen * sizeof(char) * 8; //taille du fichier en bit
+    int outputLen = (fileLen * 8 + 5) / 6; // nombre de caractères base64 = ceil(fileLen * 8 / 6)
 
-    while (outputLen % 24 != 0)
-    {
-        outputLen++; //on ajoute des bits jusqu'à ce que ce soit multiple de 24
-    }
+    printf("fileLen : %d | outputLen : %d\n", fileLen, outputLen);
 
-    char* temp = (char*) malloc (outputLen / 8); // fichier de travail
+    char* temp = (char*) malloc (sizeof(char) * fileLen); // fichier de travail
     char* output = (char*) malloc (outputLen / 8); // fichier de retour
 
     for (int i = 0; i < fileLen; i++)
     {
         temp[i] = s[i]; // on copie tout le tableau
     }
+    temp[fileLen] = 0;
 
-    char spare;
-
-    for (int i = 0; i < fileLen; i++)
+    for (int i = 0; i < outputLen; i++)
     {
-        output[i] = encoding_table[temp[0] >> 2]; // on prend les 6 premiers bits et les transforme en caractère de la table 64
+        output[i] = encoding_table[(unsigned char)temp[0] >> 2]; // on prend les 6 premiers bits et les transforme en caractère de la table 64
 
         for (int y = 0; y < fileLen; y++)
         {
             temp[y] <<= 6; //on pousse à gauche les deux bits de fin de caractère
-            temp[y] = temp[y] | (temp[y+1] >> 2);
+            temp[y] = temp[y] | ((unsigned char)temp[y + 1] >> 2); // on pousse les 6 premiers bit de la case suivante sur la case courante
         }
-        spare = s[i];
-        spare <<= 6;
     }
 
+    output[outputLen] = '\0'; //fin de chaine
     free(temp);
     return output;
 }
