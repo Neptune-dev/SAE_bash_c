@@ -21,7 +21,6 @@ char * Encode64 (char *s)
     int fileLen = strlen(s); // taille du fichier
     int outputLen = (fileLen * 8 + 5) / 6; // nombre de caractères base64 = ceil(fileLen * 8 / 6)
 
-    printf("fileLen : %d | outputLen : %d\n", fileLen, outputLen);
 
     char* temp = (char*) malloc (sizeof(char) * fileLen); // fichier de travail
     char* output = (char*) malloc (outputLen / 8); // fichier de retour
@@ -30,7 +29,7 @@ char * Encode64 (char *s)
     {
         temp[i] = s[i]; // on copie tout le tableau
     }
-    temp[fileLen] = 0;
+    temp[fileLen] = 0; // on evite les dépassements sur y+1
 
     for (int i = 0; i < outputLen; i++)
     {
@@ -61,7 +60,7 @@ char * Vignere (char* key, char* s)
     int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
-    char* output = (char*) malloc (sizeof(char) * fileLen); //fichier de retour
+    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
     int charIndex;
     int offset;
@@ -70,7 +69,7 @@ char * Vignere (char* key, char* s)
     {
         // on trouve l'index du caractère de notre chaine
         charIndex = 0;
-        while (s[i] != encoding_table[charIndex])
+        while (s[i] != encoding_table[charIndex] && charIndex <= 63)
         {
             charIndex++;
         }
@@ -85,6 +84,7 @@ char * Vignere (char* key, char* s)
         output[i] = encoding_table[(charIndex + offset) % 64]; //les modulos pour boucler dans les tables
     }
 
+    output[fileLen] = '\0';
     return output;
 }
 
@@ -143,7 +143,13 @@ int main (int argc, char * argv[])
 
     char* file = ReadFile(argv[2]);
 
-    char* encryptedFile = Decode64(Vignere(argv[1], Encode64(file)));
+    printf("%s\n", file);
+
+    file = Encode64(file);
+
+    printf("%s\n", file);
+
+    char* encryptedFile = Decode64(Vignere(argv[1], file));
     free(file);
 
     ReplaceFile(argv[2], encryptedFile);
