@@ -21,8 +21,6 @@ char * Encode64 (char *s)
     int fileLen = strlen(s); // taille du fichier
     int outputLen = 4 * ((fileLen + 2) / 3); // nombre de caractères base64 = ceil(fileLen * 8 / 6)
 
-    printf("fileLen : %d | outputLen : %d\n", fileLen, outputLen);
-
     unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (fileLen + 1)); // fichier de travail
     char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
 
@@ -51,7 +49,7 @@ char * Encode64 (char *s)
 // decode une chaine de la base 64
 char * Decode64 (char *s)
 {
-
+    
 }
 
 
@@ -120,6 +118,7 @@ char * ReadFile (char* fileName)
     return output;
 }
 
+// fonction pour modifier le fichier d'origine
 void ReplaceFile(char* fileName, char* s)
 {
     FILE* file;
@@ -144,18 +143,12 @@ int main (int argc, char * argv[])
 
     char* file = ReadFile(argv[2]);
 
-    char* encodedFile = Encode64(file);
+    char* encryptedFile = Decode64(Vignere(argv[1], Encode64(file)));
     free(file);
 
-    char* encryptedFile = Vignere(argv[1], encodedFile);
-    free(encodedFile);
+    ReplaceFile(argv[2], encryptedFile);
 
-    char* finalFile = Decode64(encryptedFile);
     free(encryptedFile);
-
-    ReplaceFile(argv[2], finalFile);
-
-    free(finalFile);
 
     return 0;
 }
