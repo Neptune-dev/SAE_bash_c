@@ -18,18 +18,18 @@ static char encoding_table[] = {
 char * Encode64 (char *s)
 {
     int fileLen = strlen(s); // taille du fichier
-    int outputLen = (fileLen * 8 + 5) / 6; // nombre de caractères base64 = ceil(fileLen * 8 / 6)
+    int outputLen = 4 * ((fileLen + 2) / 3); // nombre de caractères base64 = ceil(fileLen * 8 / 6)
 
     printf("fileLen : %d | outputLen : %d\n", fileLen, outputLen);
 
-    char* temp = (char*) malloc (sizeof(char) * fileLen); // fichier de travail
-    char* output = (char*) malloc (outputLen / 8); // fichier de retour
+    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (fileLen + 1)); // fichier de travail
+    char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
 
     for (int i = 0; i < fileLen; i++)
     {
-        temp[i] = s[i]; // on copie tout le tableau
+        temp[i] = (unsigned char) s[i]; // on copie tout le tableau
     }
-    temp[fileLen] = 0;
+    temp[fileLen] = 0; // on evite les dépassements sur y+1
 
     for (int i = 0; i < outputLen; i++)
     {
@@ -49,7 +49,7 @@ char * Encode64 (char *s)
 
 int main (int argc, char * argv[])
 {
-    char* a = "Salut";
+    char* a = "Ceci est un exemple de fichier, au format texte.";
     printf("Decoded : %s | Encoded : %s\n", a, Encode64(a));
     return 0;
 }
