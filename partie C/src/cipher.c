@@ -59,9 +59,49 @@ char * Encode64 (char *s)
 // decode une chaine de la base 64
 char * Decode64 (char *s)
 {
-    
-}
+    int encodedLen = strlen(s); // taille du fichier à décoder
+    int outputLen = 4; // taille de sortie
 
+    char* temp = (char*) malloc((encodedLen + 1) * sizeof(char)); // ficher de travail
+    char* output = (char*) malloc((outputLen + 1) * sizeof(char)); // fichier de retour
+
+    for (int i = 0; i < encodedLen; i++)
+    {
+        temp[i] = s[i]; // on copie tout le tableau
+    }
+    temp[encodedLen] = 0; // on evite les dépassements sur y+1
+
+    char charIndex0; //char pour avoir 1o au lieu de 4
+    char charIndex1;
+
+    for (int i = 0; i < outputLen; i++)
+    {
+        // on trouve l'index du caractère de notre chaine dans la table Base64
+        charIndex0 = 0;
+        while (temp[0] != encoding_table[charIndex0] && charIndex0 <= 63)
+        {
+            charIndex0++;
+        }
+
+        charIndex1 = 0;
+        while (temp[1] != encoding_table[charIndex1] && charIndex1 <= 63)
+        {
+            charIndex1++;
+        }
+
+        output[i] = charIndex0 | (charIndex1 >> 6); // on reforme les 8 bits du caractère ascii en prenant les 6bits du premier élément et les 2bits de poids fort de l'élément suivant
+
+        for (int y = 0; y < encodedLen; y++)
+        {
+            temp[y] = ;
+            temp[y] = temp[y] | ((unsigned char)temp[y + 1] >> 2); // on pousse les 6 premiers bit de la case suivante sur la case courante
+        }
+    }
+
+    output[outputLen] = '\0'; //fin de chaine
+    free(temp);
+    return output;
+}
 
 // chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
 char * Vignere (char* key, char* s)
