@@ -19,9 +19,19 @@ static char encoding_table[] = {
 char * Encode64 (char *s)
 {
     int fileLen = strlen(s); // taille du fichier
-    int outputLen = 4 * ((fileLen + 2) / 3); // nombre de caractères base64 = ceil(fileLen * 8 / 6)
+    int outputLen = 4 * ((fileLen + 2) / 3); // nombre de caractères base64
+    /*
+    groupes de 3 octets (3 x 8 = 24 bits) -> 4 caractères Base64 (4 x 6 = 24 bits)
+    nombre de groupes de 3o = ⌈ fileLen / 3 ⌉
+    outputLen = 4 x ⌈ fileLen / 3 ⌉       car on rappelle 3o = 4 char Base64
+              = 4 x ((fileLen + 2) / 3)  car la division entière tronquée par 3, on obtient le plafond en ajoutant 2
+    examples :
+        si fileLen = 3k   -> (3k + 2) / 3     = k
+        si fileLen = 3k+1 -> (3k + 1 + 2) / 3 = k+1
+        si fileLen = 3k+2 -> (3k + 2 + 2) / 3 = k+1
+    */
 
-    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (fileLen + 1)); // fichier de travail
+    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (fileLen + 1)); // fichier de travail, outputLen + 1 pour le '\0
     char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
 
     for (int i = 0; i < fileLen; i++)
