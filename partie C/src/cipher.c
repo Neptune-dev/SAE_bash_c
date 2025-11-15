@@ -60,46 +60,45 @@ char * Encode64 (char *s)
 char * Decode64 (char *s)
 {
     int encodedLen = strlen(s); // taille du fichier à décoder
-    int outputLen = 4; // taille de sortie
+    int outputLen = encodedLen; // taille de sortie
 
-    char* temp = (char*) malloc((encodedLen + 1) * sizeof(char)); // ficher de travail
+    char* indexes = (char*) malloc((encodedLen + 1) * sizeof(char));
+    /* ficher de travail, qui contient les indexes des caractères de la chaine dans la table de Base64
+    ici on utilise des char pour travailler sur 1o plutot que 4o (int) */
+
     char* output = (char*) malloc((outputLen + 1) * sizeof(char)); // fichier de retour
 
     for (int i = 0; i < encodedLen; i++)
     {
-        temp[i] = s[i]; // on copie tout le tableau
+        indexes[i] = 0;
+        while (s[i] != encoding_table[indexes[i]] && indexes[i] <= 63)
+        {
+            indexes[i]++; // on récupère notre chaine sous forme d'un tableau d'indexes dans la table base64
+        }
     }
-    temp[encodedLen] = 0; // on evite les dépassements sur y+1
-
-    char charIndex0; //char pour avoir 1o au lieu de 4
-    char charIndex1;
+    indexes[encodedLen] = 0; // on evite les dépassements sur y+1
 
     for (int i = 0; i < outputLen; i++)
     {
-        // on trouve l'index du caractère de notre chaine dans la table Base64
-        charIndex0 = 0;
-        while (temp[0] != encoding_table[charIndex0] && charIndex0 <= 63)
-        {
-            charIndex0++;
-        }
 
-        charIndex1 = 0;
-        while (temp[1] != encoding_table[charIndex1] && charIndex1 <= 63)
-        {
-            charIndex1++;
-        }
-
-        output[i] = charIndex0 | (charIndex1 >> 6); // on reforme les 8 bits du caractère ascii en prenant les 6bits du premier élément et les 2bits de poids fort de l'élément suivant
+        output[i] = (indexes[0] << 2) | (indexes[1] >> 4);
+        /* on prend les 6 bits du premier index, on met deux 0 à droite
+        on prend les 2 bits de poids fort de l'index suivant, on les sert à droite
+        (un char est sur 8bits mais le caractère Base64 est sur 6bits donc décalage à droite de 4 au lieu de 6)
+        on fait les 6bits de poids fort OR les 2bits de poids faible */
 
         for (int y = 0; y < encodedLen; y++)
         {
-            temp[y] = ;
-            temp[y] = temp[y] | ((unsigned char)temp[y + 1] >> 2); // on pousse les 6 premiers bit de la case suivante sur la case courante
+            indexes[y] = ((indexes[y + 1] & 15) << 2) | (indexes[y + 2] >> 4);
+            /* masque (1111) = 15 pour récuprer les 4 derniers bit
+            on met deux 0 à droite
+            on ajoute les 2 bit de poids fort de la case suivante
+            */
         }
     }
 
     output[outputLen] = '\0'; //fin de chaine
-    free(temp);
+    free(indexes);
     return output;
 }
 
