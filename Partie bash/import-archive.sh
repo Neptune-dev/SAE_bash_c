@@ -20,8 +20,10 @@ do
     fi
     chemin=$fichier;
     nom_fichier=$(basename $chemin);
+
     #nb au début du fichier
     N=$(head -1 .sh-toolbox/archives);
+
     #si fichier inexistant
     if [ ! -f "$chemin" ]; then
         echo "Le chemin passé en paramètre n'existe pas.";
@@ -35,19 +37,22 @@ do
             echo "Un soucis a eu lieu lors de la mise à jour du fichier archives.";
             exit 4;
         fi
+        
         #ajout d'un fichier -> incrémentation de N
         N=$(($N+1));
-        #on affiche tous les fichiers sauf le chiffre au début et on le fout dans un fichier tmp
+        #copie du fichier initial sauf le chiffre N au début dans un fichier tmp
         tail -n +2 ".sh-toolbox/archives" > "$nom_fichier.tmp"
-        #affiche le nouveau N au tout début du fichier
+        #fait rentrer le nouveau N au tout début du fichier (fichier vide initialement donc > suffit)
         echo "$N" > ".sh-toolbox/archives"
-        # >> c'est le contenu du premier fichier + le contenu du 2eme fichier
+        # >> c'est le contenu du premier fichier + le contenu du 2eme fichier (fichier non vide donc concaténation obligatoire >>)
         cat "$nom_fichier.tmp" >> ".sh-toolbox/archives"
         rm "$nom_fichier.tmp"
 
         date_suppr=$(date +"%Y%m%d-%H%M%S");
+        #ajout de la nouvelle ligne dans le fichier archives (nouvelle ligne = nouvelle archive)
         echo "$nom_fichier:$date_suppr:" >> ".sh-toolbox/archives"
     else
+        #passage en force donc on copie quitte à écraser un fichier avec un nom identique
         if [ $forcer -eq 1 ]; then
             cp "$chemin" ".sh-toolbox/"
         else

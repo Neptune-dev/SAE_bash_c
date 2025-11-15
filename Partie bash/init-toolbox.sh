@@ -6,7 +6,7 @@ if [ ! -d ".sh-toolbox" ]; then
     exit 0;
 fi
 
-if [ ! -d ".sh-toolbox/archives" ]; then
+if [ ! -f ".sh-toolbox/archives" ]; then
     echo "Le dossier .sh-toolbox/archives a été créé.";
     touch .sh-toolbox/archives;
     echo "0" > .sh-toolbox/archives;
@@ -14,9 +14,8 @@ if [ ! -d ".sh-toolbox/archives" ]; then
 fi
 
 nb_fichiers=$(ls .sh-toolbox | wc -l);
-echo $nb_fichiers;
-if [ $nb_fichiers -gt 1 ]; then
-    echo "Il y a plus des fichiers existants dans le dossier .sh-toolbox";
+if [ $nb_fichiers -gt 1 ]; then # -gt 1 -> s'il y a autre chose que le fichier archives
+    echo "Des fichiers différents du fichier archives sont présents dans le dossier .sh-toolbox.";
     exit 2;
 fi
 
