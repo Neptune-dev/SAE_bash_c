@@ -1,11 +1,11 @@
 ./ls-toolbox.sh
-
+REPERTOIRE=.sh-toolbox;
 code_erreur=$?
 
 case $code_erreur in
     1) 
         #Si dossier .sh-toolbox manquant, alors le fichier archives aussi donc on peut directement appeler le script init
-        echo "Voulez-vous réinitialiser l'environnement de travail en créant le dossier .sh-toolbox ? (oui ou non)";
+        echo "Voulez-vous réinitialiser l'environnement de travail en créant le dossier $REPERTOIRE ? (oui ou non)";
         read verification;
         if [ $verification == "oui" ]; then
             ./init-toolbox.sh;
@@ -16,8 +16,8 @@ case $code_erreur in
         echo "Voulez-vous créer le fichier archives ? (oui ou non)";
         read verification;
         if [ $verification == "oui" ]; then
-            touch .sh-toolbox/archives;
-            echo "0" > .sh-toolbox/archives;
+            touch $REPERTOIRE/archives;
+            echo "0" > $REPERTOIRE/archives;
         fi
         ;;
     3)
@@ -29,16 +29,16 @@ case $code_erreur in
         echo "Voulez-vous réinitialiser le contenu du fichier archives afin de restaurer l'environnement de travail ? (oui ou non)";
         read verification;
         if [ $verification == "oui" ]; then
-            N=$(ls .sh-toolbox/*.gz | wc -l); # nombre de lignes dans le répertoire .sh-toolbox -> dossier non corrompu
-            echo "$N" > ".sh-toolbox/archives" # > on ajoute directement le nombre de fichiers .gz dans le fichier archives
+            N=$(ls $REPERTOIRE/*.gz | wc -l); # nombre de lignes dans le répertoire .sh-toolbox -> dossier non corrompu
+            echo "$N" > "$REPERTOIRE/archives" # > on ajoute directement le nombre de fichiers .gz dans le fichier archives
 
-            for fichier in $(ls .sh-toolbox/*.gz)
+            for fichier in $(ls $REPERTOIRE/*.gz)
             do
                 #pour tous les .gz dans le répertoire, on prend le basename et la date d'ajout et on l'ajoute dans le fichier archives
                 #(on supprime l'ancien contenu pour afficher le nouveau)
                 nom_fichier=$(basename $fichier);
                 date_suppr=$(date +"%Y%m%d-%H%M%S");
-                echo "$nom_fichier:$date_suppr:" >> ".sh-toolbox/archives"
+                echo "$nom_fichier:$date_suppr:" >> "$REPERTOIRE/archives"
             done
         fi
     ;;
