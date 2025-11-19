@@ -48,16 +48,50 @@ for file in "$REPERTOIRE"/*.gz; do
         echo "Vous avez sélectionné : $fichier"
         break
     fi
-    N=$((N+1))
+    N=$((N+1));
 done
 
+temp_dir="$REPERTOIRE/$fichier.tmp";
+
+if [ -d "$temp_dir" ]; then echo "Le fichier a déjà été extrait !"; exit 0; fi
+
 # Créer un dossier temporaire pour l'extraction
-mkdir -p "$REPERTOIRE/$fichier.tmp"
-cp "$REPERTOIRE/$fichier" "$REPERTOIRE/$fichier.tmp"
+mkdir -p "$temp_dir";
+cp "$REPERTOIRE/$fichier" "$temp_dir";
 #la copie est nécéssaire pour la décompression donc on inclut cette copie dans le cas où la décompression échoue
-if [ $? -eq 0 ]; then echo "Échec lors de la copie du fichier pour décompression"; exit 3; fi
+if [ $? -ne 0 ]; then echo "Échec lors de la copie du fichier pour décompression"; exit 3; fi
 
 # Décompression du fichier x -> extrait; z -> dezippe car .gz; f -> nom du fichier dans la commande; C -> dans le répertoire ci-contre
-tar -xzf "$REPERTOIRE/$fichier.tmp/$fichier" -C "$REPERTOIRE/$fichier.tmp"
+tar -xzf "$temp_dir/$fichier" -C "$temp_dir";
 # si échec de la commande tar
-if [ $? -eq 0 ]; then echo "La décompression du fichier a échouée."; exit 3; fi
+if [ $? -ne 0 ]; then echo "La décompression du fichier a échouée."; exit 3; fi
+rm "$temp_dir/$fichier";
+
+if [ ! -f "$temp_dir/var/log/auth.log" ]; then exit 4; fi
+if [ $(ls $temp_dir/data| wc -w) -eq 0 ]; then exit 5; fi
+
+
+# Date de référence (date de dernière connexion sur le compte admin) + conversion en timestamp pour comparaison
+date_ref=$(grep -i "Accepted password for admin from" $temp_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
+ts_ref=$(date -d "$date_ref" +%s)
+
+# tous les sous dossiers du dossier
+for sous_dossier in "$temp_dir/data"/*/; do
+    [ -d "$sous_dossier" ] || continue  # ignore si ce n'est pas un dossier
+
+    # tous les fichiers du sous dossier
+    for file in "$sous_dossier"*; do
+        [ -f "$file" ] || continue  # ignore si ce n'est pas un fichier
+
+        # Récupération de la date de modification
+        date_modif=$(stat -c "%y" "$file" | cut -d'.' -f1)
+
+        # Conversion en timestamp
+        ts_file=$(date -d "$date_modif" +%s)
+
+        if [ "$ts_file" -gt "$ts_ref" ]; then
+            echo "$file → Fichier modifié après la date de connexion";
+        fi
+    done
+done
+#rm -rf "$REPERTOIRE/$fichier.tmp";

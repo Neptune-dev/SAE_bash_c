@@ -17,8 +17,8 @@ fi
 
 
 nb_fichiers=$(ls $REPERTOIRE | wc -l);
-if [ $nb_fichiers -gt 1 ]; then echo "Des fichiers différents du fichier archives sont présents dans le dossier $REPERTOIRE."; exit 2; fi
 if [ $nb_fichiers -eq 1 ]; then echo "0" > $REPERTOIRE/archives; exit 0; fi
+if [ $nb_fichiers -gt 1 ]; then echo "Des fichiers différents du fichier archives sont présents dans le dossier $REPERTOIRE."; exit 2; fi
 
 #en cas d'erreur
 echo "Le dossier et/ou le fichier n'a pas pu être créé.";
