@@ -57,17 +57,17 @@ if [ -d "$temp_dir" ]; then echo "Le fichier a déjà été extrait !"; exit 0; 
 
 # Créer un dossier temporaire pour l'extraction
 mkdir -p "$temp_dir";
-cp "$REPERTOIRE/$fichier" "$temp_dir";
-#la copie est nécéssaire pour la décompression donc on inclut cette copie dans le cas où la décompression échoue
-if [ $? -ne 0 ]; then echo "Échec lors de la copie du fichier pour décompression"; exit 3; fi
+#si jamais on ne peut pas mkdir: erreur liée à la décompression donc même code d'erreur: 3
+if [ $? -ne 0 ]; then echo "Échec lors de la création du dossier temporaire pour décompression"; exit 3; fi
 
 # Décompression du fichier x -> extrait; z -> dezippe car .gz; f -> nom du fichier dans la commande; C -> dans le répertoire ci-contre
-tar -xzf "$temp_dir/$fichier" -C "$temp_dir";
+tar -xzf "$fichier" -C "$temp_dir";
 # si échec de la commande tar
 if [ $? -ne 0 ]; then echo "La décompression du fichier a échouée."; exit 3; fi
-rm "$temp_dir/$fichier";
 
+#s'il n y a pas de fichier logs
 if [ ! -f "$temp_dir/var/log/auth.log" ]; then exit 4; fi
+#s'il n'y a pas de dossiers dans /data
 if [ $(ls $temp_dir/data| wc -w) -eq 0 ]; then exit 5; fi
 
 
@@ -90,8 +90,30 @@ for sous_dossier in "$temp_dir/data"/*/; do
         ts_file=$(date -d "$date_modif" +%s)
 
         if [ "$ts_file" -gt "$ts_ref" ]; then
-            echo "$file → Fichier modifié après la date de connexion";
+            echo "fichier modifié: $file";
+        elif [ "$ts_file" -lt "$ts_ref" ]; then
+            #on doit reparcourir la liste des fichiers dans tous les sous dossiers afin de filtrer ceux qui sont plus anciens ou non
+            #et voir s'ils ont le même nom + taille afin de les afficher
+            for sous_dossier2 in "$temp_dir/data"/*/; do
+                for file2 in "$sous_dossier2"*; do
+                    date_modif2=$(stat -c "%y" "$file2" | cut -d'.' -f1)
+                    # Conversion en timestamp
+                    ts_file2=$(date -d "$date_modif2" +%s)
+                    #filtre pour afficher la liste des fichiers modifiés uniquement
+                    if [ "$ts_file2" -gt "$ts_ref" ]; then
+                        file_name=$(basename $file);
+                        size=$(ls -l $file | cut -d" " -f5);
+                        file_name2=$(basename $(ls -l $file2 | cut -d" " -f9));
+                        size2=$(ls -l $file2 | cut -d" " -f5);
+                        if [[ $file_name = $file_name2 && $size -eq $size2 ]]; then
+                            echo "pour le fichier dans la boucle: $file2, $file_name2,$size2";
+                        fi
+                    fi
+                done
+            done
+
         fi
     done
 done
+exit 0;
 #rm -rf "$REPERTOIRE/$fichier.tmp";
