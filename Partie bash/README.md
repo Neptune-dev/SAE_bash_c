@@ -38,7 +38,7 @@ Une validation utilisateur est nécessaire si une archive est déjà présente d
 * `1` → Le dossier `.sh-toolbox` n'existe pas
 * `2` → Le chemin passé en paramètre n'est pas valide
 * `3` → Erreur lors de la copie dans `.sh-toolbox`
-* `4` → Problème lors de la mise à jour du fichier `archives` (cas non géré actuellement)
+* `4` → Problème lors de la mise à jour du fichier `archives`
 
 ---
 
@@ -75,6 +75,23 @@ Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas su
    * Si une archive mentionnée dans le fichier `archives` n'existe pas, le contenu du fichier `archives` est réinitialisé avec les fichiers présents et la valeur correcte en tête de fichier.
    * Si une archive existe dans le dossier mais n'est pas mentionnée dans `archives`, le fichier `archives` est également mis à jour.
 
+### 5. `./check-archive.sh`
+
+**Description :**
+Affiche la liste des archives .gz disponibles, permet d'en choisir une et la décompresse. Affiche ensuite l'heure de la dernière connexion suspecte et affiche la liste des fichiers modifiés après la connexion suspecte. Affiche également la liste des fichiers non modifiés qui ont le même nom que les fichiers modifiés et identifiés.
+
+0. **Code d'erreur 0 :**
+   Tout fonctionne.
+1. **Code d'erreur 1 :**
+   Si le dossier `.sh-toolbox` n'existe pas.
+2. **Code d'erreur 2 :**
+   Si le fichier `archives` n'existe pas.
+3. **Code d'erreur 3 :**
+   Si la décompression du fichier a échouée.
+4. **Code d'erreur 4 :**
+   Si le fichiers `log/auth.txt` est manquant.
+5. **Code d'erreur 5 :**
+   Si le dossier `/data/` est vide.
 **Remarque :**
 
 * La saisie utilisateur est nécessaire dans tous les cas.
