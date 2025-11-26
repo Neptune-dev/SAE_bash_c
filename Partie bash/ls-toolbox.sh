@@ -21,7 +21,7 @@ do
     nom_fichier=$(echo "$fichier" | cut -d":" -f1);
 
     fichiers_gz=$(ls $REPERTOIRE/*.gz | cut -d'/' -f2)
-    if [ $? -ne 0 ]; then echo "Aucun fichier .gz dans le répertoire $REPERTOIRE."; exit 0;
+    if [ $? -ne 0 ]; then echo "Aucun fichier .gz dans le répertoire $REPERTOIRE."; exit 0;fi
     #cas si une archive dans le fichier archives n'existe pas dans le dossier .sh-toolbox
     for file in $fichiers_gz
     do

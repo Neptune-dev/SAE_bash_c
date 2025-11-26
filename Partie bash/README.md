@@ -64,7 +64,7 @@ Affiche la liste des archives présentes dans le répertoire `.sh-toolbox` en li
 **Description :**
 Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas suivants :
 
-1. **Code d'erreur 1 :**
+1. **Codes de retour :**
    Si le dossier `.sh-toolbox` n'est pas présent, le script appelle `init-toolbox.sh` pour l'initialisation.
 
 2. **Code d'erreur 2 :**
@@ -90,7 +90,7 @@ Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas su
 **Description :**
 Affiche la liste des archives .gz disponibles, permet d'en choisir une et la décompresse. Affiche ensuite l'heure de la dernière connexion suspecte et affiche la liste des fichiers modifiés après la connexion suspecte. Affiche également la liste des fichiers non modifiés qui ont le même nom que les fichiers modifiés et identifiés.
 
-0. **Code d'erreur 0 :**
+0. **Code de retours :**
    Tout fonctionne.
 1. **Code d'erreur 1 :**
    Si le dossier `.sh-toolbox` n'existe pas.
