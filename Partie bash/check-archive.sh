@@ -11,21 +11,23 @@ N=1
 TOTAL=0
 
 #boucle d'affichage des fichiers .gz dans le répertoire
-for file in "$REPERTOIRE"/*.gz; do
-    base_file=$(basename "$file")
-    echo "$N: $base_file"
-    N=$((N+1))
+fichiers_gz=$REPERTOIRE"/*.gz";
+if [ -z "$fichiers_gz" ]; then echo "Aucun fichier .gz dans le répertoire $REPERTOIRE."; exit 0; fi
+for file in "$fichiers_gz"; do
+    base_file=$(basename "$file");
+    echo "$N: $base_file";
+    N=$((N+1));
 done
 
-TOTAL=$N
+TOTAL=$N;
 
 # Vérifier s'il y a au moins un fichier
 if [ "$TOTAL" -eq 1 ]; then echo "Aucun fichier .gz trouvé dans $REPERTOIRE."; exit 1; fi
 
 # tant que la valeur saisie est pas valide
 while true; do
-    echo -n "Entrez le numéro du fichier à sélectionner : "
-    read CHOIX
+    echo -n "Entrez le numéro du fichier à sélectionner : ";
+    read CHOIX;
 
     # si c'est pas un nombre -> on reste dans la boucle
     if ! [[ "$CHOIX" =~ ^[0-9]+$ ]]; then echo "Erreur : vous devez entrer un nombre."; continue; fi
@@ -44,9 +46,9 @@ for file in "$REPERTOIRE"/*.gz; do
     base_file=$(basename "$file")
 
     if [ "$N" -eq "$CHOIX" ]; then
-        fichier="$base_file"
-        echo "Vous avez sélectionné : $fichier"
-        break
+        fichier="$base_file";
+        echo "Vous avez sélectionné : $fichier";
+        break;
     fi
     N=$((N+1));
 done
@@ -73,7 +75,7 @@ if [ $(ls $temp_dir/data| wc -w) -eq 0 ]; then exit 5; fi
 
 # Date de référence (date de dernière connexion sur le compte admin) + conversion en timestamp pour comparaison
 date_ref=$(grep -i "Accepted password for admin from" $temp_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
-ts_ref=$(date -d "$date_ref" +%s)
+ts_ref=$(date -d "$date_ref" +%s);
 
 # tous les sous dossiers du dossier
 for sous_dossier in "$temp_dir/data"/*/; do
@@ -84,10 +86,10 @@ for sous_dossier in "$temp_dir/data"/*/; do
         [ -f "$file" ] || continue  # ignore si ce n'est pas un fichier
 
         # Récupération de la date de modification
-        date_modif=$(stat -c "%y" "$file" | cut -d'.' -f1)
+        date_modif=$(stat -c "%y" "$file" | cut -d'.' -f1);
 
         # Conversion en timestamp
-        ts_file=$(date -d "$date_modif" +%s)
+        ts_file=$(date -d "$date_modif" +%s);
 
         if [ "$ts_file" -gt "$ts_ref" ]; then
             echo "fichier modifié: $file";
@@ -96,9 +98,9 @@ for sous_dossier in "$temp_dir/data"/*/; do
             #et voir s'ils ont le même nom + taille afin de les afficher
             for sous_dossier2 in "$temp_dir/data"/*/; do
                 for file2 in "$sous_dossier2"*; do
-                    date_modif2=$(stat -c "%y" "$file2" | cut -d'.' -f1)
+                    date_modif2=$(stat -c "%y" "$file2" | cut -d'.' -f1);
                     # Conversion en timestamp
-                    ts_file2=$(date -d "$date_modif2" +%s)
+                    ts_file2=$(date -d "$date_modif2" +%s);
                     #filtre pour afficher la liste des fichiers modifiés uniquement
                     if [ "$ts_file2" -gt "$ts_ref" ]; then
                         file_name=$(basename $file);
