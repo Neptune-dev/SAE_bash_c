@@ -214,3 +214,44 @@ void ReplaceFile(char* fileName, char* s)
 
     fclose(file);
 }
+
+// trouve la clef et met sa taille dans la variable pointée par keySize
+char * FindKey (char * decrypted, char * encrypted, int * keySize)
+{
+    int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
+    char * output = (char*)malloc(maxSize * sizeof(char)); // fichier de retour
+
+    int deIndex;
+    int enIndex;
+    int offset;
+    char keyChar;
+    int tempSize = 0;
+
+    for (int i = 0; i < maxSize; i++)
+    {
+        // on trouve l'index du caractère de notre chaine en clair
+        deIndex = 0;
+        while (decrypted[i] != encoding_table[deIndex] && deIndex <= 63)
+        {
+            deIndex++;
+        }
+
+        // on trouve l'index du caractère de notre chaine en chiffré
+        enIndex = 0;
+        while (encrypted[i] != encoding_table[enIndex] && enIndex <= 63)
+        {
+            enIndex++;
+        }
+
+        offset = (enIndex - deIndex + 64) % 64; //+64 pour éviter les valeurs négatives, le modulo pour boucler dans les tables
+        keyChar = encoding_table[offset];
+        
+        // TODO : check key cycling
+
+        output[i] = keyChar;
+        tempSize++;
+    }
+
+    *keySize = tempSize;
+    return output;
+}
