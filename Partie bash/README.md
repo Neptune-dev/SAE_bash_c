@@ -57,7 +57,6 @@ Affiche la liste des archives présentes dans le répertoire `.sh-toolbox` en li
 
 > Remarque : le code `3` peut correspondre à deux situations différentes.
 
----
 
 ### 4. `./restore-toolbox.sh`
 
@@ -74,6 +73,16 @@ Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas su
 
    * Si une archive mentionnée dans le fichier `archives` n'existe pas, le contenu du fichier `archives` est réinitialisé avec les fichiers présents et la valeur correcte en tête de fichier.
    * Si une archive existe dans le dossier mais n'est pas mentionnée dans `archives`, le fichier `archives` est également mis à jour.
+
+**Remarque :**
+
+* La saisie utilisateur est nécessaire dans tous les cas.
+
+**Code de retour :**
+
+* `0` → Le script s'est exécuté correctement
+
+---
 
 ### 5. `./check-archive.sh`
 
@@ -92,14 +101,6 @@ Affiche la liste des archives .gz disponibles, permet d'en choisir une et la dé
    Si le fichiers `log/auth.txt` est manquant.
 5. **Code d'erreur 5 :**
    Si le dossier `/data/` est vide.
-
-**Remarque :**
-
-* La saisie utilisateur est nécessaire dans tous les cas.
-
-**Code de retour :**
-
-* `0` → Le script s'est exécuté correctement
 
 ---
 
