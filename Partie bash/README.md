@@ -92,6 +92,7 @@ Affiche la liste des archives .gz disponibles, permet d'en choisir une et la dé
    Si le fichiers `log/auth.txt` est manquant.
 5. **Code d'erreur 5 :**
    Si le dossier `/data/` est vide.
+
 **Remarque :**
 
 * La saisie utilisateur est nécessaire dans tous les cas.
