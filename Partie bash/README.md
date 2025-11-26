@@ -57,6 +57,7 @@ Affiche la liste des archives présentes dans le répertoire `.sh-toolbox` en li
 
 > Remarque : le code `3` peut correspondre à deux situations différentes.
 
+---
 
 ### 4. `./restore-toolbox.sh`
 
