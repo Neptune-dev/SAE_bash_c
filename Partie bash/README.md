@@ -102,12 +102,3 @@ Affiche la liste des archives .gz disponibles, permet d'en choisir une et la dé
    Si le fichiers `log/auth.txt` est manquant.
 5. **Code d'erreur 5 :**
    Si le dossier `/data/` est vide.
-
----
-
-## Conseils d'utilisation
-
-1. Commencez par exécuter `./init-toolbox.sh` pour initialiser le dossier et le fichier `archives`.
-2. Utilisez `./import-archive.sh` pour ajouter de nouvelles archives.
-3. Listez vos archives avec `./ls-toolbox.sh`.
-4. Exécutez `./restore-toolbox.sh` pour corriger les incohérences entre le dossier et le fichier `archives`.

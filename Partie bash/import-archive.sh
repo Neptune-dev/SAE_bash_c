@@ -22,6 +22,7 @@ do
 
     #si fichier inexistant
     if [ ! -f "$chemin" ]; then echo "Le chemin $chemin passé en paramètre n'existe pas."; exit 2; fi
+    if [[ "$nom_fichier" != *.gz ]]; then echo "L'un des fichiers passés en paramètre n'est pas un fichier .gz."; exit 2; fi
 
     #si le fichier n'est pas déjà copié dans archives, on le copie
     if [ ! -f "$REPERTOIRE/$nom_fichier" ]; then

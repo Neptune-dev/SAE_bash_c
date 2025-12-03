@@ -16,7 +16,6 @@ if [ -z "$fichiers" ]; then exit 3; fi
 #fichier de la forme nom_fichier:date_creation:contenu_cle
 for fichier in $fichiers
 do
-    estDansArchives=0;
     estDansToolbox=0;
     nom_fichier=$(echo "$fichier" | cut -d":" -f1);
 

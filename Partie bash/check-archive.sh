@@ -11,9 +11,9 @@ N=1
 TOTAL=0
 
 #boucle d'affichage des fichiers .gz dans le répertoire
-fichiers_gz=$REPERTOIRE"/*.gz";
+fichiers_gz=("$REPERTOIRE"/*.gz);
 if [ -z "$fichiers_gz" ]; then echo "Aucun fichier .gz dans le répertoire $REPERTOIRE."; exit 0; fi
-for file in "$fichiers_gz"; do
+for file in "$REPERTOIRE"/*.gz; do
     base_file=$(basename "$file");
     echo "$N: $base_file";
     N=$((N+1));
