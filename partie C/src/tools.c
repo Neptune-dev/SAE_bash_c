@@ -219,7 +219,7 @@ void ReplaceFile(char* fileName, char* s)
 char * FindKey (char * decrypted, char * encrypted, int * keySize)
 {
     int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
-    char * output = (char*)malloc(maxSize * sizeof(char)); // fichier de retour
+    char * output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
 
     int deIndex;
     int enIndex;
@@ -227,6 +227,7 @@ char * FindKey (char * decrypted, char * encrypted, int * keySize)
     char keyChar;
     int tempSize = 0;
 
+    // on récupère la clef pour tous les charactères de la chaine
     for (int i = 0; i < maxSize; i++)
     {
         // on trouve l'index du caractère de notre chaine en clair
@@ -246,12 +247,57 @@ char * FindKey (char * decrypted, char * encrypted, int * keySize)
         offset = (enIndex - deIndex + 64) % 64; //+64 pour éviter les valeurs négatives, le modulo pour boucler dans les tables
         keyChar = encoding_table[offset];
         
-        // TODO : check key cycling
-
         output[i] = keyChar;
         tempSize++;
     }
 
-    *keySize = tempSize;
+    output[tempSize] = '\0';
+
+    // vérification du key cycling : garder la plus petite période qui reproduit toute la clé
+    int cycle = DetectKeyCycle(output, tempSize);
+    if (cycle < tempSize)
+    {
+        *keySize = cycle;
+        output[cycle] = '\0';
+
+        char * shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
+
+        output = shrunk;
+    } else
+    {
+        *keySize = tempSize;
+    }
+
     return output;
+}
+
+// retourne la plus petite periode de key, sinon len
+int DetectKeyCycle (char * key, int len)
+{
+    // le plus petit cycle possible
+    if (len <= 1)
+    {
+        return len;
+    }
+
+    int ok;
+    for (int i = 1; i <= len; i++)
+    {
+        ok = 1;
+        for (int j = 0; j < len; j++)
+        {
+            if (key[j] != key[j % i])
+            {
+                ok = 0;
+                break;
+            }
+        }
+
+        if (ok)
+        {
+            return i;
+        }
+    }
+
+    return len;
 }
