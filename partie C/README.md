@@ -1,4 +1,4 @@
-# Guide de la partie Bash
+# Guide de la partie C
 
 Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnalités.
 
