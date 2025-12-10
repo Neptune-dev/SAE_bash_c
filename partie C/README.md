@@ -13,7 +13,7 @@ Chiffre un fichier avec une clef, selon la méthode de vignère en base64.
 
 **Syntaxe :**
 
-`./cipher maclef monfichierclair`
+`./cipher <maclef> <monfichierclair>`
 
 ---
 
@@ -24,7 +24,7 @@ Dechiffre un fichier grâce à sa clef, selon la méthode de vignère en base64.
 
 **Syntaxe :**
 
-`./decipher maclef monfichierchiffre`
+`./decipher <maclef> <monfichierchiffre>`
 
 ---
 
@@ -35,7 +35,7 @@ Trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clai
 
 **Syntaxe :**
 
-`./findkey monfichierclair monfichierchiffre`
+`./findkey <monfichierclair> <monfichierchiffre>`
 
 ---
 
