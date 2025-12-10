@@ -4,6 +4,9 @@
 
 #include "tools.h"
 
+#define TEMP_PATH "temp"
+#define DELETE_TEMP "rm temp"
+
 static char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -14,6 +17,70 @@ static char encoding_table[] = {
                                 'w', 'x', 'y', 'z', '0', '1', '2', '3',
                                 '4', '5', '6', '7', '8', '9', '+', '/'
                             };
+
+
+
+char * Encode64_2(char * s) {
+    FILE *fp;
+
+    // Préparer la commande avec des paramètres
+    char command[1024];
+    snprintf(command, sizeof(command), "echo %s | base64 | sed 's/=//' > %s", s, TEMP_PATH);
+    printf("snprint\n");
+
+    // Exécuter la commande
+    fp = popen(command, "r");
+    if (fp == NULL) {
+        perror("Échec de popen");
+        exit(1);
+    }
+
+    if (pclose(fp) == -1) {
+        perror("Échec de pclose");
+        exit(1);
+    }
+    printf("popen\n");
+
+
+    char * output = ReadFile(TEMP_PATH);
+    printf("output readfile\n");
+
+    // supression du fichier temporaire
+    system(DELETE_TEMP);
+    
+
+    return output;
+}
+
+char * Decode64_2(char * s) {
+    FILE *fp;
+
+    // Préparer la commande avec des paramètres
+    char command[256];
+    snprintf(command, sizeof(command), "echo %s | base64 -d > %s", s, TEMP_PATH);
+
+    // Exécuter la commande
+    fp = popen(command, "r");
+    if (fp == NULL) {
+        perror("Échec de popen");
+        exit(1);
+    }
+
+    if (pclose(fp) == -1) {
+        perror("Échec de pclose");
+        exit(1);
+    }
+
+
+    char * output = ReadFile(TEMP_PATH);
+
+    // supression du fichier temporaire
+    system(DELETE_TEMP);
+    
+
+    return output;
+}
+
 
 // encode une chaine en base 64
 char * Encode64 (char *s)

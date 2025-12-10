@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "tools.h"
 
@@ -15,10 +16,19 @@ int main (int argc, char * argv[])
 
     char* file = ReadFile(argv[2]);
 
-    system("")
+    char* a = Encode64_2(argv[1]);
+    printf("a : %s\n", a);
+    char* b = Encode64_2(file);
+    printf("b : %s\n", b);
+    char* c = Vignere(a,b);
+    printf("c : %s\n", c);
 
-    char* encryptedFile = Decode64(Vignere(Encode64(argv[1]), Encode64(file)));
+    char* encryptedFile = Decode64_2(c);
     free(file);
+
+    free(a);
+    free(b);
+    free(c);
 
     ReplaceFile(argv[2], encryptedFile);
 
