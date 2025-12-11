@@ -45,6 +45,7 @@ int main (int argc, char * argv[])
     printf("Devignere : %s\n", b);
     char* filename = "deciphered_output.txt";
     writeToFile(filename, b);
+    //faire un base64 -d deciphered_output.txt
     //char* c = Decode64(b);
     printf("✓ Déchiffrage terminé avec succès !\n");
 

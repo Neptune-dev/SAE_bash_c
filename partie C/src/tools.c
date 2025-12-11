@@ -65,16 +65,6 @@ char * Encode64 (char *s,size_t size)
     return output;
 }
 
-// Fonction pour récupérer l'index d'un caractère Base64 dans la table
-int get_base64_index(char c) {
-    for (int i = 0; i < 64; i++) {
-        if (encoding_table[i] == c) {
-            return i;
-        }
-    }
-    return -1; // Retourne -1 si le caractère n'est pas trouvé
-}
-
 // Fonction de décodage Base64
 char * Decode64(char * s) {
     FILE *fp;
