@@ -68,7 +68,6 @@ char * Encode64 (char *s)
 char * Decode64 (char *s)
 {
     int encodedLen = strlen(s); // taille du fichier à décoder
-    //int outputLen = encodedLen; // taille de sortie
     int outputLen = (encodedLen * 6) / 8; // taille de sortie
     // chaque caracère de la base64 fait 6 bits, et on veut des paquets de 8 bits
 
