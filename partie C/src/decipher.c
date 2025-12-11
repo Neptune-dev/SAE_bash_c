@@ -5,6 +5,23 @@
 
 #include "tools.h"
 
+
+void writeToFile(const char* filename, const char* content) {
+    // Ouvrir le fichier en mode écriture ("w" pour écriture texte)
+    FILE* file = fopen(filename, "w");
+    if (!file) {
+        perror("Erreur d'ouverture du fichier");
+        return;
+    }
+
+    // Écrire le contenu dans le fichier
+    fprintf(file, "%s", content);
+
+    // Fermer le fichier
+    fclose(file);
+    printf("Contenu écrit avec succès dans %s\n", filename);
+}
+
 int main (int argc, char * argv[])
 {
     //on vérifie le nombre d'arguments d'arguments
@@ -26,17 +43,15 @@ int main (int argc, char * argv[])
     //FONCTIONNEL !!!!!
     char* b = Devignere(argv[1], a);
     printf("Devignere : %s\n", b);
-    //Pas encore...
-    char* encryptedFile = Decode64(b, strlen(b));
-    printf("Decode64 : %s\n", encryptedFile);
-
-    ReplaceFile(argv[2], encryptedFile);
+    char* filename = "deciphered_output.txt";
+    writeToFile(filename, b);
+    //char* c = Decode64(b);
     printf("✓ Déchiffrage terminé avec succès !\n");
 
     free(file);
     free(a);
     free(b);
-    free(encryptedFile);
 
     return 0;
 }
+

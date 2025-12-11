@@ -19,7 +19,7 @@ int main (int argc, char * argv[])
         perror("Erreur lors de la lecture du fichier");
         return 1;
     }
-    unsigned char* encryptedFile = Decode64(Vignere(argv[1], Encode64(file,fileSize)), fileSize);
+    unsigned char* encryptedFile = Decode64(Vignere(argv[1], Encode64(file,fileSize)));
     free(file);
 
     ReplaceFile(argv[2], encryptedFile);

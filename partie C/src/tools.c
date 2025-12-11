@@ -4,6 +4,9 @@
 
 #include "tools.h"
 
+#define TEMP_PATH "temp.jpg"
+#define DELETE_TEMP "rm temp"
+
 static char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -73,49 +76,29 @@ int get_base64_index(char c) {
 }
 
 // Fonction de décodage Base64
-char* Decode64(char* s,size_t size) {
-    if (!s) return NULL;
-
-    char command[4096];
-    snprintf(command, sizeof(command), "base64 -d %s 2>/dev/null", s);
-
-    FILE *fp = popen(command, "r");
-    if (!fp) {
-        return NULL;
+char * Decode64(char * s) {
+    FILE *fp;
+    // Préparer la commande avec des paramètres
+    char command[256];
+    snprintf(command, sizeof(command), "echo %s > %s | base64 -d %s > %s", s, TEMP_PATH, TEMP_PATH, "temp_decoded.jpg");
+    // Exécuter la commande
+    fp = popen(command, "r");
+    
+    if (fp == NULL) {
+        perror("Échec de popen");
+        exit(1);
     }
-
-    size_t cap = 8192;
-    size_t len = 0;
-    char *out = malloc(cap);
-    if (!out) {
-        pclose(fp);
-        return NULL;
+    if (pclose(fp) == -1) {
+        perror("Échec de pclose");
+        exit(1);
     }
+    size_t TEMP_SIZE;
+    char * output = ReadFile(TEMP_PATH, &TEMP_SIZE);
+    // supression du fichier temporaire
+    //system(DELETE_TEMP);
+    return output;
 
-    const size_t CHUNK = 4096;
-    char buf[CHUNK];
-    size_t n;
-    while ((n = fread(buf, 1, CHUNK, fp)) > 0) {
-        if (len + n + 1 > cap) {
-            while (len + n + 1 > cap) cap *= 2;
-            char *tmp = realloc(out, cap);
-            if (!tmp) {
-                free(out);
-                pclose(fp);
-                return NULL;
-            }
-            out = tmp;
-        }
-        memcpy(out + len, buf, n);
-        len += n;
-    }
 
-    pclose(fp);
-
-    char *shrunk = realloc(out, len + 1);
-    if (shrunk) out = shrunk;
-    out[len] = '\0';
-    return out;
 }
 
 // chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
