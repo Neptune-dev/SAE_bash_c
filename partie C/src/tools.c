@@ -206,21 +206,23 @@ unsigned char* ReadFile(char* fileName, size_t* outSize) {
 }
 
 // fonction pour modifier le fichier d'origine
-void ReplaceFile(char* fileName, char* s)
+void WriteFile(char* fileName, char* s)
 {
     FILE* file;
     file = fopen(fileName, "w");
-    
-    for (int i = 0; i < strlen(s); i++)
-    {
-        fputc(s[i], file);
+    if (!file) {
+        perror("Erreur d'ouverture du fichier");
+        // handle TODO
     }
+    
+    // Écrire le contenu dans le fichier
+    fprintf(file, "%s", s);
 
     fclose(file);
 }
 
 // trouve la clef et met sa taille dans la variable pointée par keySize
-char * FindKey (char * decrypted, char * encrypted, int * keySize)
+char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
 {
     int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
     char * output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
@@ -305,3 +307,5 @@ int DetectKeyCycle (char * key, int len)
 
     return len;
 }
+
+//fin

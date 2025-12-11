@@ -1,16 +1,18 @@
 
-all: cipher.a decipher.a findkey.a
+# regle defaut
+all: cipher decipher findkey saelib.a
 
-cipher.a: cipher.o tools.o
+# executables
+cipher: cipher.o tools.o
 	gcc $^ -o $@
 
-decipher.a: decipher.o tools.o
+decipher: decipher.o tools.o
 	gcc $^ -o $@
 
-findkey.a: findkey.o tools.o
+findkey: findkey.o tools.o
 	gcc $^ -o $@
 
-
+# objets
 cipher.o: cipher.c tools.h
 	gcc -c $<
 
@@ -23,5 +25,6 @@ findkey.o: findkey.c tools.h
 tools.o: tools.c
 	gcc -c $<
 
+# clean
 clean:
-	rm -f *.o cipher.a decipher.a findkey.a 
+	rm -f *.o cipher decipher findkey
