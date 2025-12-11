@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tools.h"
+#include "../include/tools.h"
 
 int main (int argc, char * argv[])
 {
@@ -30,7 +30,7 @@ int main (int argc, char * argv[])
 
     // faire un base64 -d clair.txt > ciphered_output.txt du résultat pour qu'il soit bien ciphered.
 
-    ReplaceFile(argv[2], b);
+    WriteFile(argv[2], b);
 
     free(b);
     return EXIT_SUCCESS;

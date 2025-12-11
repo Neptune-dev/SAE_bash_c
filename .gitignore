@@ -1,6 +1,6 @@
 .vscode
 .vs
 
-partie\ C/src/*.o
-partie\ C/src/*.exe
-partie\ C/src/*.a
+partie\ C/*.o
+partie\ C/*.exe
+partie\ C/*.a

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tools.h"
+#include "../include/tools.h"
 
 #define TEMP_PATH "temp.jpg"
 #define DELETE_TEMP "rm temp"
