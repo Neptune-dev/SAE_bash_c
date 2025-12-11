@@ -19,108 +19,104 @@ static char encoding_table[] = {
                             };
 
 
-
-char * Encode64_2(char * s) {
-    FILE *fp;
-
-    // Préparer la commande avec des paramètres
+char *Encode64_2(char *s) {
     char command[1024];
-    snprintf(command, sizeof(command), "echo %s | base64 | sed 's/=//' > %s", s, TEMP_PATH);
-    printf("snprint\n");
 
-    // Exécuter la commande
-    fp = popen(command, "r");
-    if (fp == NULL) {
-        perror("Échec de popen");
-        exit(1);
+    // printf -- permet d’éviter les injections tant que s ne contient pas %
+    snprintf(command, sizeof(command), "printf \"%s\" | base64", s);
+
+    FILE *fp = popen(command, "r");
+    if (!fp) return NULL;
+
+    char buffer[4096];
+    size_t n = fread(buffer, 1, sizeof(buffer), fp);
+
+    pclose(fp);
+
+    // enlever le \n final si présent
+    if (n > 0 && buffer[n-1] == '\n') {
+        buffer[n-1] = '\0';
+        n--;
     }
 
-    if (pclose(fp) == -1) {
-        perror("Échec de pclose");
-        exit(1);
+
+    char *out = malloc(n + 1);
+    memcpy(out, buffer, n);
+    out[n] = '\0';
+
+        // Supprimer le padding '='
+    while (n > 0 && out[n-1] == '=') {
+        out[n-1] = '\0';
+        n--;
     }
-    printf("popen\n");
 
-
-    char * output = ReadFile(TEMP_PATH);
-    printf("output readfile\n");
-
-    // supression du fichier temporaire
-    system(DELETE_TEMP);
-    
-
-    return output;
+    return out;
 }
 
-char * Decode64_2(char * s) {
-    FILE *fp;
 
-    // Préparer la commande avec des paramètres
+char *Encode64(char *s) {
     char command[256];
-    snprintf(command, sizeof(command), "echo %s | base64 -d > %s", s, TEMP_PATH);
+    snprintf(command, sizeof(command), "base64 -d");
 
-    // Exécuter la commande
-    fp = popen(command, "r");
-    if (fp == NULL) {
-        perror("Échec de popen");
-        exit(1);
-    }
+    FILE *fp = popen(command, "w+");
+    if (!fp) return NULL;
 
-    if (pclose(fp) == -1) {
-        perror("Échec de pclose");
-        exit(1);
-    }
+    fwrite(s, 1, strlen(s), fp);
+    fflush(fp);
 
+    // Lire le résultat décodé
+    char buffer[20000];
+    size_t n = fread(buffer, 1, sizeof(buffer), fp);
 
-    char * output = ReadFile(TEMP_PATH);
+    pclose(fp);
 
-    // supression du fichier temporaire
-    system(DELETE_TEMP);
-    
-
-    return output;
+    char *out = malloc(n + 1);
+    memcpy(out, buffer, n);
+    out[n] = '\0';
+    return out;
 }
-
 
 // encode une chaine en base 64
-char * Encode64 (char *s)
-{
-    int fileLen = strlen(s); // taille du fichier
-    int outputLen = 4 * ((fileLen + 2) / 3); // nombre de caractères base64
-    /*
-    groupes de 3 octets (3 x 8 = 24 bits) -> 4 caractères Base64 (4 x 6 = 24 bits)
-    nombre de groupes de 3o = ⌈ fileLen / 3 ⌉
-    outputLen = 4 x ⌈ fileLen / 3 ⌉       car on rappelle 3o = 4 char Base64
-              = 4 x ((fileLen + 2) / 3)  car la division entière tronquée par 3, on obtient le plafond en ajoutant 2
-    examples :
-        si fileLen = 3k   -> (3k + 2) / 3     = k
-        si fileLen = 3k+1 -> (3k + 1 + 2) / 3 = k+1
-        si fileLen = 3k+2 -> (3k + 2 + 2) / 3 = k+1
-    */
+char *Decode64_2(char *input, size_t *outLen) {
+    if (!input) return NULL;
 
-    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (fileLen + 1)); // fichier de travail, outputLen + 1 pour le '\0
-    char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
-
-    for (int i = 0; i < fileLen; i++)
-    {
-        temp[i] = (unsigned char) s[i]; // on copie tout le tableau
+    size_t len = strlen(input);
+    if (len % 4 != 0) {
+        // Base64 standard avec padding doit être multiple de 4
+        // Ici on suppose padding '=' supprimé, donc on complète avec 0 si nécessaire
+        size_t pad = 4 - (len % 4);
+        char *tmp = malloc(len + pad + 1);
+        strcpy(tmp, input);
+        for (size_t i = 0; i < pad; i++) tmp[len + i] = 'A'; // 'A' = 0 en base64
+        tmp[len + pad] = '\0';
+        input = tmp;
+        len += pad;
     }
-    temp[fileLen] = 0; // on evite les dépassements sur y+1
 
-    for (int i = 0; i < outputLen; i++)
-    {
-        output[i] = encoding_table[(unsigned char)temp[0] >> 2]; // on prend les 6 premiers bits et les transforme en caractère de la table 64
+    // Calcul taille de sortie
+    size_t outputLen = len / 4 * 3;
+    unsigned char *out = malloc(outputLen);
+    if (!out) return NULL;
 
-        for (int y = 0; y < fileLen; y++)
-        {
-            temp[y] <<= 6; //on pousse à gauche les deux bits de fin de caractère
-            temp[y] = temp[y] | ((unsigned char)temp[y + 1] >> 2); // on pousse les 6 premiers bit de la case suivante sur la case courante
+    size_t j = 0;
+    for (size_t i = 0; i < len; i += 4) {
+        int vals[4];
+        for (int k = 0; k < 4; k++) {
+            if (input[i + k] >= 'A' && input[i + k] <= 'Z') vals[k] = input[i + k] - 'A';
+            else if (input[i + k] >= 'a' && input[i + k] <= 'z') vals[k] = input[i + k] - 'a' + 26;
+            else if (input[i + k] >= '0' && input[i + k] <= '9') vals[k] = input[i + k] - '0' + 52;
+            else if (input[i + k] == '+') vals[k] = 62;
+            else if (input[i + k] == '/') vals[k] = 63;
+            else vals[k] = 0; // padding ou caractères invalides remplacés par 0
         }
+
+        out[j++] = (vals[0] << 2) | (vals[1] >> 4);
+        if (j < outputLen) out[j++] = (vals[1] << 4) | (vals[2] >> 2);
+        if (j < outputLen) out[j++] = (vals[2] << 6) | vals[3];
     }
 
-    output[outputLen] = '\0'; //fin de chaine
-    free(temp);
-    return output;
+    if (outLen) *outLen = outputLen;
+    return out;
 }
 
 // decode une chaine de la base 64
@@ -170,38 +166,58 @@ char * Decode64 (char *s)
 }
 
 // chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
-char * Vignere (char* key, char* s)
+// chiffre la chaine s avec Vigenère base64, la clé "key" doit être base64
+char *Vignere(char *key, char *s)
 {
-    int fileLen = strlen(s); //taille du fichier
-    int keyLen = strlen(key); //taille de la clé
-    
-    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
+    if (!key || !s) return NULL;
 
-    int charIndex;
-    int offset;
+    int fileLen = strlen(s);
+    int keyLen  = strlen(key);
+
+    if (keyLen == 0) return NULL;
+
+    char *output = malloc(fileLen + 1);
+    if (!output) return NULL;
 
     for (int i = 0; i < fileLen; i++)
     {
-        // on trouve l'index du caractère de notre chaine
-        charIndex = 0;
-        while (s[i] != encoding_table[charIndex] && charIndex <= 63)
+        // Find char index in Base64 table
+        int charIndex = -1;
+        for (int j = 0; j < 64; j++)
         {
-            charIndex++;
+            if (s[i] == encoding_table[j]) {
+                charIndex = j;
+                break;
+            }
         }
 
-        // on trouve l'index de la clef = notre offset
-        offset = 0;
-        while (key[i % keyLen] != encoding_table[offset])
-        {
-            offset++;
+        if (charIndex == -1) {
+            free(output);
+            return NULL; // caractère non Base64
         }
 
-        output[i] = encoding_table[(charIndex + offset) % 64]; //les modulos pour boucler dans les tables
+        // Find key offset
+        int offset = -1;
+        for (int j = 0; j < 64; j++)
+        {
+            if (key[i % keyLen] == encoding_table[j]) {
+                offset = j;
+                break;
+            }
+        }
+
+        if (offset == -1) {
+            free(output);
+            return NULL; // clé invalide
+        }
+
+        output[i] = encoding_table[(charIndex + offset) % 64];
     }
 
     output[fileLen] = '\0';
     return output;
 }
+
 
 // dechiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
 char * Devignere (char* key, char* s)
@@ -237,36 +253,27 @@ char * Devignere (char* key, char* s)
     return output;
 }
 
-// ouvre un fichier et retourne sa chaine de caractère
-char * ReadFile (char* fileName)
-{
-    FILE* file;
-    file = fopen(fileName, "r");
-    
-    int size = 0;
-    char c;
+char* ReadFile(char* fileName) {
+    FILE* file = fopen(fileName, "rb"); // mode binaire
+    if (!file) return NULL;
 
-    do //on trouve la taille du fichier
-    {
-        size++;
-    } while ((c = fgetc(file)) != EOF);
-
-    // on reserve le bon espace mémoire
-    char* output = (char*) malloc (sizeof(char) * size);
-
-    // on revient au début du fichier
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
     rewind(file);
 
-    // on remplit notre chaine
-    for (int i = 0; i <= size - 2; i++)
-    {
-        output[i] = fgetc(file);
+    char* buffer = malloc(size + 1);
+    if (!buffer) {
+        fclose(file);
+        return NULL;
     }
-    output[size - 1] = '\0'; // on ajoute le caractère de fin de chaine
 
+    fread(buffer, 1, size, file);
+    buffer[size] = '\0'; // fin de chaîne pour les fonctions C
     fclose(file);
-    return output;
+    return buffer;
 }
+
+
 
 // fonction pour modifier le fichier d'origine
 void ReplaceFile(char* fileName, char* s)

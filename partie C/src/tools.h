@@ -3,7 +3,7 @@
 
 
 char * Encode64_2(char *);
-char * Decode64_2(char *);
+char * Decode64_2(char *,size_t* );
 char * Encode64 (char *);
 char * Decode64 (char *);
 char * Vignere (char *, char *);

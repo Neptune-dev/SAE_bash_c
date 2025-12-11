@@ -17,13 +17,17 @@ int main (int argc, char * argv[])
     char* file = ReadFile(argv[2]);
 
     char* a = Encode64_2(argv[1]);
-    printf("a : %s\n", a);
+    printf("clé encodée : %s\n", a);
     char* b = Encode64_2(file);
-    printf("b : %s\n", b);
+    printf("fichier encodé : %s\n", b);
     char* c = Vignere(a,b);
-    printf("c : %s\n", c);
+    printf("vigenere : %s\n", c);
 
-    char* encryptedFile = Decode64_2(c);
+    size_t* outlen;
+    char* encryptedFile = Devignere(a,c);
+    printf("Dévigenere: %s\n",encryptedFile);
+    char* final = Decode64_2(encryptedFile,outlen);
+    printf("Final: %s\n",final);
     free(file);
 
     free(a);
