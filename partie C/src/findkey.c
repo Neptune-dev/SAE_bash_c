@@ -13,12 +13,22 @@ int main (int argc, char* argv[])
         perror("Erreur, les arguments sont invalides");
         return 1;
     }
+    size_t fileSize1;
+    char* decryptedFile = ReadFile(argv[2], &fileSize1);
+    if (!decryptedFile) {
+        perror("Erreur lors de la lecture du fichier");
+        return 1;
+    }
 
-    char* decryptedFile = ReadFile(argv[1]);
-    char* encryptedFile = ReadFile(argv[2]);
+    size_t fileSize2;
+    char* encryptedFile = ReadFile(argv[2], &fileSize2);
+    if (!encryptedFile) {
+        perror("Erreur lors de la lecture du fichier");
+        return 1;
+    }
 
     int keySize;
-    char* key = FindKey(Encode64(decryptedFile), Encode64(encryptedFile), &keySize);
+    char* key = FindKey(Encode64(decryptedFile, fileSize1), Encode64(encryptedFile, fileSize2), &keySize);
 
     free(decryptedFile);
     free(encryptedFile);

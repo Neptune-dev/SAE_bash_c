@@ -4,9 +4,6 @@
 
 #include "tools.h"
 
-#define TEMP_PATH "temp"
-#define DELETE_TEMP "rm temp"
-
 static char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -18,206 +15,142 @@ static char encoding_table[] = {
                                 '4', '5', '6', '7', '8', '9', '+', '/'
                             };
 
-
-char *Encode64_2(char *s) {
-    char command[1024];
-
-    // printf -- permet d’éviter les injections tant que s ne contient pas %
-    snprintf(command, sizeof(command), "printf \"%s\" | base64", s);
-
-    FILE *fp = popen(command, "r");
-    if (!fp) return NULL;
-
-    char buffer[4096];
-    size_t n = fread(buffer, 1, sizeof(buffer), fp);
-
-    pclose(fp);
-
-    // enlever le \n final si présent
-    if (n > 0 && buffer[n-1] == '\n') {
-        buffer[n-1] = '\0';
-        n--;
-    }
-
-
-    char *out = malloc(n + 1);
-    memcpy(out, buffer, n);
-    out[n] = '\0';
-
-        // Supprimer le padding '='
-    while (n > 0 && out[n-1] == '=') {
-        out[n-1] = '\0';
-        n--;
-    }
-
-    return out;
-}
-
-
-char *Encode64(char *s) {
-    char command[256];
-    snprintf(command, sizeof(command), "base64 -d");
-
-    FILE *fp = popen(command, "w+");
-    if (!fp) return NULL;
-
-    fwrite(s, 1, strlen(s), fp);
-    fflush(fp);
-
-    // Lire le résultat décodé
-    char buffer[20000];
-    size_t n = fread(buffer, 1, sizeof(buffer), fp);
-
-    pclose(fp);
-
-    char *out = malloc(n + 1);
-    memcpy(out, buffer, n);
-    out[n] = '\0';
-    return out;
-}
-
 // encode une chaine en base 64
-char *Decode64_2(char *input, size_t *outLen) {
-    if (!input) return NULL;
-
-    size_t len = strlen(input);
-    if (len % 4 != 0) {
-        // Base64 standard avec padding doit être multiple de 4
-        // Ici on suppose padding '=' supprimé, donc on complète avec 0 si nécessaire
-        size_t pad = 4 - (len % 4);
-        char *tmp = malloc(len + pad + 1);
-        strcpy(tmp, input);
-        for (size_t i = 0; i < pad; i++) tmp[len + i] = 'A'; // 'A' = 0 en base64
-        tmp[len + pad] = '\0';
-        input = tmp;
-        len += pad;
-    }
-
-    // Calcul taille de sortie
-    size_t outputLen = len / 4 * 3;
-    unsigned char *out = malloc(outputLen);
-    if (!out) return NULL;
-
-    size_t j = 0;
-    for (size_t i = 0; i < len; i += 4) {
-        int vals[4];
-        for (int k = 0; k < 4; k++) {
-            if (input[i + k] >= 'A' && input[i + k] <= 'Z') vals[k] = input[i + k] - 'A';
-            else if (input[i + k] >= 'a' && input[i + k] <= 'z') vals[k] = input[i + k] - 'a' + 26;
-            else if (input[i + k] >= '0' && input[i + k] <= '9') vals[k] = input[i + k] - '0' + 52;
-            else if (input[i + k] == '+') vals[k] = 62;
-            else if (input[i + k] == '/') vals[k] = 63;
-            else vals[k] = 0; // padding ou caractères invalides remplacés par 0
-        }
-
-        out[j++] = (vals[0] << 2) | (vals[1] >> 4);
-        if (j < outputLen) out[j++] = (vals[1] << 4) | (vals[2] >> 2);
-        if (j < outputLen) out[j++] = (vals[2] << 6) | vals[3];
-    }
-
-    if (outLen) *outLen = outputLen;
-    return out;
-}
-
-// decode une chaine de la base 64
-char * Decode64 (char *s)
+char * Encode64 (char *s,size_t size)
 {
-    int encodedLen = strlen(s); // taille du fichier à décoder
-    int outputLen = encodedLen; // taille de sortie
+    int outputLen = 4 * ((size + 2) / 3); // nombre de caractères base64
+    /*
+    groupes de 3 octets (3 x 8 = 24 bits) -> 4 caractères Base64 (4 x 6 = 24 bits)
+    nombre de groupes de 3o = ⌈ fileLen / 3 ⌉
+    outputLen = 4 x ⌈ fileLen / 3 ⌉       car on rappelle 3o = 4 char Base64
+              = 4 x ((fileLen + 2) / 3)  car la division entière tronquée par 3, on obtient le plafond en ajoutant 2
+    examples :
+        si fileLen = 3k   -> (3k + 2) / 3     = k
+        si fileLen = 3k+1 -> (3k + 1 + 2) / 3 = k+1
+        si fileLen = 3k+2 -> (3k + 2 + 2) / 3 = k+1
+    */
 
-    char* indexes = (char*) malloc((encodedLen + 1) * sizeof(char));
-    /* ficher de travail, qui contient les indexes des caractères de la chaine dans la table de Base64
-    ici on utilise des char pour travailler sur 1o plutot que 4o (int) */
-
-    char* output = (char*) malloc((outputLen + 1) * sizeof(char)); // fichier de retour
-
-    for (int i = 0; i < encodedLen; i++)
+    // on vérifie si on doit ajouter des '=' de padding auquel cas il faudra tronquer la sortie
+    int padding = 0;
+    if (size % 3 != 0)
     {
-        indexes[i] = 0;
-        while (s[i] != encoding_table[indexes[i]] && indexes[i] <= 63)
-        {
-            indexes[i]++; // on récupère notre chaine sous forme d'un tableau d'indexes dans la table base64
-        }
+        padding = 3 - (size % 3); // nombre de '=' à supposéent ajouter
+        outputLen -= padding; // on tronque la sortie
     }
-    indexes[encodedLen] = 0; // on evite les dépassements sur y+1
 
+    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (size + 1)); // fichier de travail, outputLen + 1 pour le '\0
+    char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
+
+    for (int i = 0; i < size; i++)
+    {
+        temp[i] = (unsigned char) s[i]; // on copie tout le tableau
+    }
+    temp[size] = 0; // on evite les dépassements sur y+1
     for (int i = 0; i < outputLen; i++)
     {
+        output[i] = encoding_table[(unsigned char)temp[0] >> 2]; // on prend les 6 premiers bits et les transforme en caractère de la table 64
 
-        output[i] = (indexes[0] << 2) | (indexes[1] >> 4);
-        /* on prend les 6 bits du premier index, on met deux 0 à droite
-        on prend les 2 bits de poids fort de l'index suivant, on les sert à droite
-        (un char est sur 8bits mais le caractère Base64 est sur 6bits donc décalage à droite de 4 au lieu de 6)
-        on fait les 6bits de poids fort OR les 2bits de poids faible */
-
-        for (int y = 0; y < encodedLen; y++)
+        for (int y = 0; y < size; y++)
         {
-            indexes[y] = ((indexes[y + 1] & 15) << 2) | (indexes[y + 2] >> 4);
-            /* masque (1111) = 15 pour récuprer les 4 derniers bit
-            on met deux 0 à droite
-            on ajoute les 2 bit de poids fort de la case suivante
-            */
+            temp[y] <<= 6; //on pousse à gauche les deux bits de fin de caractère
+            temp[y] = temp[y] | ((unsigned char)temp[y + 1] >> 2); // on pousse les 6 premiers bit de la case suivante sur la case courante
         }
     }
 
     output[outputLen] = '\0'; //fin de chaine
-    free(indexes);
+    free(temp);
     return output;
 }
 
+// Fonction pour récupérer l'index d'un caractère Base64 dans la table
+int get_base64_index(char c) {
+    for (int i = 0; i < 64; i++) {
+        if (encoding_table[i] == c) {
+            return i;
+        }
+    }
+    return -1; // Retourne -1 si le caractère n'est pas trouvé
+}
+
+// Fonction de décodage Base64
+char* Decode64(char* s,size_t size) {
+    if (!s) return NULL;
+
+    char command[4096];
+    snprintf(command, sizeof(command), "base64 -d %s 2>/dev/null", s);
+
+    FILE *fp = popen(command, "r");
+    if (!fp) {
+        return NULL;
+    }
+
+    size_t cap = 8192;
+    size_t len = 0;
+    char *out = malloc(cap);
+    if (!out) {
+        pclose(fp);
+        return NULL;
+    }
+
+    const size_t CHUNK = 4096;
+    char buf[CHUNK];
+    size_t n;
+    while ((n = fread(buf, 1, CHUNK, fp)) > 0) {
+        if (len + n + 1 > cap) {
+            while (len + n + 1 > cap) cap *= 2;
+            char *tmp = realloc(out, cap);
+            if (!tmp) {
+                free(out);
+                pclose(fp);
+                return NULL;
+            }
+            out = tmp;
+        }
+        memcpy(out + len, buf, n);
+        len += n;
+    }
+
+    pclose(fp);
+
+    char *shrunk = realloc(out, len + 1);
+    if (shrunk) out = shrunk;
+    out[len] = '\0';
+    return out;
+}
+
 // chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
-// chiffre la chaine s avec Vigenère base64, la clé "key" doit être base64
-char *Vignere(char *key, char *s)
+char * Vignere (char* key, char* s)
 {
-    if (!key || !s) return NULL;
+    int fileLen = strlen(s); //taille du fichier
+    int keyLen = strlen(key); //taille de la clé
+    
+    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
-    int fileLen = strlen(s);
-    int keyLen  = strlen(key);
-
-    if (keyLen == 0) return NULL;
-
-    char *output = malloc(fileLen + 1);
-    if (!output) return NULL;
+    int charIndex;
+    int offset;
 
     for (int i = 0; i < fileLen; i++)
     {
-        // Find char index in Base64 table
-        int charIndex = -1;
-        for (int j = 0; j < 64; j++)
+        // on trouve l'index du caractère de notre chaine
+        charIndex = 0;
+        while (s[i] != encoding_table[charIndex] && charIndex <= 63)
         {
-            if (s[i] == encoding_table[j]) {
-                charIndex = j;
-                break;
-            }
+            charIndex++;
         }
 
-        if (charIndex == -1) {
-            free(output);
-            return NULL; // caractère non Base64
-        }
-
-        // Find key offset
-        int offset = -1;
-        for (int j = 0; j < 64; j++)
+        // on trouve l'index de la clef = notre offset
+        offset = 0;
+        while (key[i % keyLen] != encoding_table[offset])
         {
-            if (key[i % keyLen] == encoding_table[j]) {
-                offset = j;
-                break;
-            }
+            offset++;
         }
 
-        if (offset == -1) {
-            free(output);
-            return NULL; // clé invalide
-        }
-
-        output[i] = encoding_table[(charIndex + offset) % 64];
+        output[i] = encoding_table[(charIndex + offset) % 64]; //les modulos pour boucler dans les tables
     }
 
     output[fileLen] = '\0';
     return output;
 }
-
 
 // dechiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
 char * Devignere (char* key, char* s)
@@ -253,27 +186,51 @@ char * Devignere (char* key, char* s)
     return output;
 }
 
-char* ReadFile(char* fileName) {
-    FILE* file = fopen(fileName, "rb"); // mode binaire
-    if (!file) return NULL;
-
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    rewind(file);
-
-    char* buffer = malloc(size + 1);
-    if (!buffer) {
-        fclose(file);
+// ouvre un fichier et retourne sa chaine de caractère
+unsigned char* ReadFile(char* fileName, size_t* outSize) {
+    FILE* file = fopen(fileName, "rb");
+    if (!file) {
+        perror("Erreur d'ouverture du fichier");
+        *outSize = 0;
         return NULL;
     }
-
-    fread(buffer, 1, size, file);
-    buffer[size] = '\0'; // fin de chaîne pour les fonctions C
+    
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    if (size < 0) {
+        perror("Erreur détermination taille");
+        fclose(file);
+        *outSize = 0;
+        return NULL;
+    }
+    
+    unsigned char* output = malloc(size);  // Ne pas ajouter +1, pas besoin du '\0'
+    if (!output) {
+        perror("Erreur allocation mémoire");
+        fclose(file);
+        *outSize = 0;
+        return NULL;
+    }
+    
+    // Lire caractère par caractère
+    int c;
+    size_t i = 0;
+    while ((c = fgetc(file)) != EOF && i < (size_t)size) {
+        output[i] = (unsigned char)c;  // Stocker le caractère comme un octet
+        i++;
+    }
+    
+    if (i != (size_t)size) {
+        printf("Erreur: %zu bytes lus au lieu de %ld\n", i, size);
+    }
+    
     fclose(file);
-    return buffer;
+    
+    *outSize = (size_t)size;
+    return output;
 }
-
-
 
 // fonction pour modifier le fichier d'origine
 void ReplaceFile(char* fileName, char* s)
