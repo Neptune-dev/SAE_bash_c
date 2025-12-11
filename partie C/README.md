@@ -2,16 +2,30 @@
 
 Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnalités.
 
+## Conseils d'utilisation
+
+1. Pour compiler les fichiers source, executez la commande `make`.
+2. Trois executables et une librairie statiques sont créés.
+
+<br>
+
+# Liste des fichiers
+
+### `makefile`
+
+**Description :**
+Permet de compiler l'ensemble des fichiers mentionnés ci-dessous
+
 ---
 
-## Liste des fichiers sources
+## /src
 
 ### 1. `cipher.c`
 
 **Description :**
 Chiffre un fichier avec une clef, selon la méthode de vignère en base64.
 
-**Syntaxe :**
+**Utilisation :**
 
 `./cipher <maclef> <monfichierclair>`
 
@@ -20,51 +34,66 @@ Chiffre un fichier avec une clef, selon la méthode de vignère en base64.
 ### 2. `decipher.c`
 
 **Description :**
-Dechiffre un fichier grâce à sa clef, selon la méthode de vignère en base64.
+Utilise `decipherbody.c` pour dechiffrer un fichier grâce à sa clef, selon la méthode de vignère en base64.
 
-**Syntaxe :**
+**Utilisation :**
 
 `./decipher <maclef> <monfichierchiffre>`
 
 ---
 
-### 3. `findkey.c`
+### 3. `decipherbody.c`
 
 **Description :**
-Trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair.
+Contient une fonciton qui dechiffre un fichier grâce à sa clef, selon la méthode de vignère en base64.
 
-**Syntaxe :**
+---
+
+### 4. `findkey.c`
+
+**Description :**
+Utilise `findkeybody.c` pour trouver la clef de chiffrement d'un fichier chiffré grâce à sa version en clair.
+
+**Utilisation :**
 
 `./findkey <monfichierclair> <monfichierchiffre>`
 
 ---
 
-### 4. `tools.c`
+### 5. `findkeybody.c`
+
+**Description :**
+Contient une fonction qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair.
+
+
+---
+
+### 6. `tools.c`
 
 **Description :**
 Contient la table des caractère de la base64, mais aussi toutes les fonctions nécessaires au fontionnement de `cipher.c`, `decipher.c` et `findkey.c`. Bon nombre de ces fonctions sont partagées par les trois programmes, c'est pourquoi elles sont rassemblées dans ce fichier.
 
 ---
 
-### 5. `tools.h`
+## /include
+
+### 1. `tools.h`
 
 **Description :**
 Contient les prototypes de toutes les fonctions de `tools.c`.
 
 ---
 
-### 6. `makefile`
+### 2. `decipherbody.h`
 
 **Description :**
-Permet de compiler l'ensemble des fichiers mentionnés ci-dessus en trois executables :
-* `cipher`
-* `decipher`
-* `findkey`
+Contient les prototypes de toutes les fonctions de `decipherbody.c`.
 
 ---
 
+### 3. `findkeybody.h`
 
-## Conseils d'utilisation
+**Description :**
+Contient les prototypes de toutes les fonctions de `findkeybody.c`.
 
-1. Pour compiler les fichiers source, rendez-vous dans le répertoire `src/` et executez la commande `make`.
-2. Vous pouvez utiliser à votre guise les executables.
+---
