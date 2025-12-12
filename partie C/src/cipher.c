@@ -21,12 +21,11 @@ int main (int argc, char * argv[])
         return EXIT_FAILURE;
     }
     char* encryptedKey = Encode64(argv[1], strlen(argv[1]));
-    printf("Clef Encodée : %s\n", encryptedKey);
     char* a = Encode64(file,fileSize);
-    printf("Encode64 : %s\n", a);
-    char* b = Vignere(argv[1], a);
-    printf("Vignere : %s\n", b);
+    char* b = Vignere(encryptedKey, a);
+    printf("Vig %s. \n", b);
     free(file);
+    printf("Fichier chiffré avec succès dans le fichier ciphered_output.txt !\nN'oubliez pas d'utiliser base64 -d ciphered_output.txt > monfichierchiffre pour obtenir le fichier chiffré final.\n");
     char* filename = "ciphered_output.txt";
     WriteFile(filename, b);
 

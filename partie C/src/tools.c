@@ -7,7 +7,7 @@
 #define TEMP_PATH "temp.jpg"
 #define DELETE_TEMP "rm temp"
 
-static char encoding_table[] = {
+char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
                                 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -117,7 +117,7 @@ char * Vignere (char* key, char* s)
     {
         // on trouve l'index du caractère de notre chaine
         charIndex = 0;
-        while (s[i] != encoding_table[charIndex] && charIndex <= 63)
+        while (s[i] != encoding_table[charIndex] && charIndex < 64)
         {
             charIndex++;
         }
@@ -156,7 +156,7 @@ char * Devignere (char* key, char* s)
     {
         // on trouve l'index du caractère de notre chaine
         charIndex = 0;
-        while (s[i] != encoding_table[charIndex] && charIndex <= 63)
+        while (s[i] != encoding_table[charIndex] && charIndex < 64)
         {
             charIndex++;
         }
