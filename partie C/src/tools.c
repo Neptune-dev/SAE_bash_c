@@ -254,6 +254,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
     int offset;
     char keyChar;
     int tempSize = 0;
+    char* shrunk;
 
     // on récupère la clef pour tous les charactères de la chaine
     for (int i = 0; i < maxSize; i++)
@@ -288,7 +289,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         *keySize = cycle;
         output[cycle] = '\0';
 
-        char * shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
+        shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
         if (!shrunk) {
             perror("Erreur reallocation mémoire");
             exit(EXIT_FAILURE);
@@ -299,7 +300,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
     {
         *keySize = tempSize;
     }
-
+    free(shrunk);
 
     return output;
 }
