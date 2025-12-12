@@ -1,7 +1,6 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-void ToolsGarbageCollector();
 char * Encode64 (char *,size_t);
 char * Decode64 (char *);
 char * Vignere (char *, char *);
