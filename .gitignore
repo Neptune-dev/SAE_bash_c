@@ -4,3 +4,6 @@
 partie\ C/*.o
 partie\ C/*.exe
 partie\ C/*.a
+cipher
+decipher
+findkey

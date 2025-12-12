@@ -46,7 +46,7 @@ Permet de compiler l'ensemble des fichiers mentionnés ci-dessous
 
 ## /src
 
-Ce repertoire contient tous les fichier `.c`, possédant tchacun une fonction de nettoyage de la mémoire ainsi que les fonctions et programmes principaux de la solution.
+Ce repertoire contient tous les fichier `.c`, possédant chacun une fonction de nettoyage de la mémoire ainsi que les fonctions et programmes principaux de la solution.
 
 ---
 
@@ -85,11 +85,6 @@ Pour avoir le résultat décodé, il faudra ensuite passer par la commande Bash
 **Description :**
 Contient une fonction qui déchiffre un fichier grâce à sa clef, selon la méthode de Vigenère en base64.
 
-**Utilisation :**
-
-
-
-
 ---
 
 ### 4. `findkey.c`
@@ -106,14 +101,14 @@ Utilise `findkeybody.c` pour trouver la clef de chiffrement d'un fichier chiffr�
 ### 5. `findkeybody.c`
 
 **Description :**
-Contient une fonction qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standart tandis que la taille de la clef est donnée sur la sortie d'erreur.
+Contient une fonction qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standard tandis que la taille de la clef est donnée sur la sortie d'erreur.
 
 ---
 
 ### 6. `tools.c`
 
 **Description :**
-Contient la table des caractère de la base64, mais aussi toutes les fonctions nécessaires au fontionnement de `cipher.c`, `decipher.c` et `findkey.c`. Bon nombre de ces fonctions sont partagées par les trois programmes, c'est pourquoi elles sont rassemblées dans ce fichier.
+Contient la table des caractères de la base64, mais aussi toutes les fonctions nécessaires au fontionnement de `cipher.c`, `decipher.c` et `findkey.c`. Bon nombre de ces fonctions sont partagées par les trois programmes, c'est pourquoi elles sont rassemblées dans ce fichier.
 
 ---
 

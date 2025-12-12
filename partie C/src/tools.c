@@ -26,16 +26,19 @@ void ToolsGarbageCollector ()
 {
     if (output != NULL)
     {
+        printf("Free output\n");
         free(output);
         output = NULL;
     }
     if (temp != NULL)
     {
+        printf("Free temp\n");
         free(temp);
         temp = NULL;
     }
     if (shrunk != NULL)
     {
+        printf("Free shrunk\n");
         free(shrunk);
         shrunk = NULL;
     }

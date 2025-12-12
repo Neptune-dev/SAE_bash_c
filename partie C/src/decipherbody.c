@@ -18,26 +18,31 @@ void DecipherGarbageCollector()
 
     if (a != NULL)
     {
+        printf("Free a\n");
         free(a);
         a = NULL;
     }
     if (b != NULL)
     {
+        printf("Free b\n");
         free(b);
         b = NULL;
     }
     if (file != NULL)
     {
+        printf("Free file\n");
         free(file);
         file = NULL;
     }
     if (filename != NULL)
     {
+        printf("Free filename\n");
         free(filename);
         filename = NULL;
     }
     if (encodedKey != NULL)
     {
+        printf("Free encodedKey\n");
         free(encodedKey);
         encodedKey = NULL;
     }
