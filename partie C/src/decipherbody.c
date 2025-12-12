@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include "../include/decipherbody.h"
@@ -14,12 +15,13 @@ int Decipher (char* key, char* target)
         perror("Erreur lors de la lecture du fichier");
         return EXIT_FAILURE;
     }
-
+    char* encodedKey = Encode64(key, strlen(key));
+    printf("Clef encodée : %s\n", encodedKey);
     //strlen passe pas donc on passe la vraie taille en paramètre de toutes les fonctions d'encodage/décodage et de vignere
     char* a = Encode64(file, fileSize);
     printf("Encode64 : %s\n", a);
     //FONCTIONNEL !!!!!
-    char* b = Devignere(key, a);
+    char* b = Devignere(encodedKey, a);
     printf("Devignere : %s\n", b);
     char* filename = "deciphered_output.txt";
     WriteFile(filename, b);

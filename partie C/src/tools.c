@@ -65,13 +65,13 @@ char * Encode64 (char *s,size_t size)
     return output;
 }
 
-// Fonction de décodage Base64
+// utilise les commande bash pour décoder une chaine en base64 /!\ Fonctionne pas
 char * Decode64(char * s) {
     FILE *fp;
-    // Préparer la commande avec des paramètres
     char command[256];
+    //on met la chaine dans un fichier temp et on utilise la commande base64 -d pour décoder dans un autre fichier temp /!\ Fonctionne pas
     snprintf(command, sizeof(command), "echo %s > %s | base64 -d %s > %s", s, TEMP_PATH, TEMP_PATH, "temp_decoded.jpg");
-    // Exécuter la commande
+    //exécution de la commande
     fp = popen(command, "r");
     
     if (fp == NULL) {
@@ -84,8 +84,6 @@ char * Decode64(char * s) {
     }
     size_t TEMP_SIZE;
     char * output = ReadFile(TEMP_PATH, &TEMP_SIZE);
-    // supression du fichier temporaire
-    //system(DELETE_TEMP);
     return output;
 
 
@@ -168,12 +166,14 @@ unsigned char* ReadFile(char* fileName, size_t* outSize) {
         return NULL;
     }
     
+    // détermine la taille du fichier (se met à la fin via fseek et stocke la valeur avec ftell)
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
+    //retour au début du fichier
     fseek(file, 0, SEEK_SET);
     
     if (size < 0) {
-        perror("Erreur détermination taille");
+        perror("Erreur taille");
         fclose(file);
         *outSize = 0;
         return NULL;
@@ -226,7 +226,10 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
 {
     int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
     char * output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
-
+    if (!output) {
+        perror("Erreur allocation mémoire");
+        exit(1);
+    }
     int deIndex;
     int enIndex;
     int offset;
@@ -269,10 +272,12 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         char * shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
 
         output = shrunk;
+        
     } else
     {
         *keySize = tempSize;
     }
+
 
     return output;
 }

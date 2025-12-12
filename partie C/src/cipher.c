@@ -20,6 +20,8 @@ int main (int argc, char * argv[])
         perror("Erreur lors de la lecture du fichier");
         return EXIT_FAILURE;
     }
+    char* encryptedKey = Encode64(argv[1], strlen(argv[1]));
+    printf("Clef Encodée : %s\n", encryptedKey);
     char* a = Encode64(file,fileSize);
     printf("Encode64 : %s\n", a);
     char* b = Vignere(argv[1], a);
@@ -33,5 +35,6 @@ int main (int argc, char * argv[])
     WriteFile(argv[2], b);
 
     free(b);
+    free(encryptedKey);
     return EXIT_SUCCESS;
 }
