@@ -106,10 +106,7 @@ Utilise `findkeybody.c` pour trouver la clef de chiffrement d'un fichier chiffr�
 ### 5. `findkeybody.c`
 
 **Description :**
-Contient une fonction `FindKey(char* fichierclair, char* fichierchiffree)`
-
-qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standart tandis que la taille de la clef est donnée sur la sortie d'erreur.
-
+Contient une fonction qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standart tandis que la taille de la clef est donnée sur la sortie d'erreur.
 
 ---
 
