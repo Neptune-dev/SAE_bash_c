@@ -3,7 +3,7 @@ SRC = ./src
 CFLAGS = -I$(INCLUDE)
 
 # regle defaut
-all: cipher decipher findkey saelib.a
+all: cipher decipher findkey libsae.a
 
 # executables
 cipher: cipher.o tools.o
@@ -35,12 +35,12 @@ tools.o: $(SRC)/tools.c $(INCLUDE)/tools.h
 	gcc $(CFLAGS) -c $<
 
 # lib
-saelib.a: decipherbody.o findkeybody.o
+libsae.a: decipherbody.o findkeybody.o
 	ar rcs $@ $^
-	ranlib saelib.a
+	ranlib libsae.a
 
 # clean
 .PHONY: clean
 
 clean:
-	rm -f *.o cipher decipher findkey saelib.a
+	rm -f *.o cipher decipher findkey libsae.a

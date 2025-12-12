@@ -52,7 +52,7 @@ int Decipher (char* key, char* target)
         return EXIT_FAILURE;
     }
     encodedKey = Encode64(key, strlen(key));
-    printf("Clef encodée : %s\n", encodedKey);
+    printf("Clef encodee : %s\n", encodedKey);
     //strlen passe pas donc on passe la vraie taille en paramètre de toutes les fonctions d'encodage/décodage et de vignere
     a = Encode64(file, fileSize);
     printf("Encode64 : %s\n", a);
@@ -63,7 +63,7 @@ int Decipher (char* key, char* target)
     WriteFile(filename, b);
     //faire un base64 -d deciphered_output.txt
     //char* c = Decode64(b);
-    printf("✓ Déchiffrage terminé avec succès !\n");
+    printf("✓ Dechiffrage termine avec succes !\n");
 
 
     return EXIT_SUCCESS;
