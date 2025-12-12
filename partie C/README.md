@@ -4,8 +4,8 @@ Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnali
 
 ## Conseils d'utilisation
 
-1. Pour compiler les fichiers source, executez la commande `make`.
-2. Trois executables et une librairie statiques sont créés.
+1. Pour compiler les fichiers source, exécutez la commande `make`.
+2. Trois exécutables et une librairie statique sont créés.
 
 <br>
 
@@ -23,29 +23,37 @@ Permet de compiler l'ensemble des fichiers mentionnés ci-dessous
 ### 1. `cipher.c`
 
 **Description :**
-Chiffre un fichier avec une clef, selon la méthode de vignère en base64.
+Chiffre un fichier avec une clef, selon la méthode de Vigenère en base64.
 
 **Utilisation :**
 
 `./cipher <maclef> <monfichierclair>`
+Pour avoir le vrai résultat, il faudra ensuite passer par la commande Bash `base64 -d <monfichierclair> > <monfichierchiffré>`, le vrai résultat sera donc `<monfichierchiffré>`.
 
 ---
 
 ### 2. `decipher.c`
 
 **Description :**
-Utilise `decipherbody.c` pour dechiffrer un fichier grâce à sa clef, selon la méthode de vignère en base64.
+Utilise `decipherbody.c` pour déchiffrer un fichier grâce à sa clef, selon la méthode de Vigenère en base64.
 
 **Utilisation :**
 
-`./decipher <maclef> <monfichierchiffre>`
+`./decipher <maclef> <monfichierchiffré>`
+Pour avoir le vrai résultat, il faudra ensuite passer par la commande Bash `base64 -d <monfichierchiffré> > <monfichierclair>`, le vrai résultat sera donc `<monfichierclair>`.
 
 ---
 
 ### 3. `decipherbody.c`
 
 **Description :**
-Contient une fonciton qui dechiffre un fichier grâce à sa clef, selon la méthode de vignère en base64.
+Contient une fonction qui déchiffre un fichier grâce à sa clef, selon la méthode de Vigenère en base64.
+
+**Utilisation :**
+
+`./decipher <maclef> <monfichierchiffre>`
+Pour avoir le vrai résultat, il faudra ensuite passer par la commande Bash `base64 -d <monfichierchiffre> > <monfichiercrypté>`
+
 
 ---
 
