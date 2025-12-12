@@ -42,7 +42,16 @@ char * Encode64 (char *s,size_t size)
     }
 
     unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (size + 1)); // fichier de travail, outputLen + 1 pour le '\0
+    if (!temp) {
+        perror("Erreur allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
     char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
+    if (!temp) {
+        perror("Erreur allocation mémoire");
+        free(temp);
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -95,11 +104,11 @@ char * Vignere (char* key, char* s)
     int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
+    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
     if (!output) {
         perror("Erreur allocation mémoire");
         exit(EXIT_FAILURE);
     }
-    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
     int charIndex;
     int offset;
@@ -133,11 +142,12 @@ char * Devignere (char* key, char* s)
     int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
+    
+    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
     if (!output) {
         perror("Erreur allocation mémoire");
         exit(EXIT_FAILURE);
     }
-    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
     int charIndex;
     int offset;
@@ -279,7 +289,10 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         output[cycle] = '\0';
 
         char * shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
-
+        if (!shrunk) {
+            perror("Erreur reallocation mémoire");
+            exit(EXIT_FAILURE);
+        }
         output = shrunk;
         
     } else

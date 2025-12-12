@@ -26,11 +26,6 @@ Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnali
         /* trouve la clef en base64, l'affiche sur la sortie standart
            la taille de la clef est donnée sur la sortie d'erreur      */
         FindKey(char* fichierclair, char* fichierchiffree);
-
-        /* doivent être appelés à la fin du programme pour éviter les fuites
-           de mémoire si les fonctions précédentes ont été utilisées          */
-        FindkeyGarbageCollector();
-        DecipherGarbageCollector();
         ```
 
 <br>
