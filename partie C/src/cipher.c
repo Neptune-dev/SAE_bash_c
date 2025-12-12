@@ -14,6 +14,7 @@ int main (int argc, char * argv[])
         return EXIT_FAILURE;
     }
 
+    // lecture du fichier via ReadFile et taille correcte dans fileSize (passage par adresse)
     size_t fileSize;
     unsigned char* file = ReadFile(argv[2], &fileSize);
     if (!file) {

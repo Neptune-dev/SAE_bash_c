@@ -4,8 +4,8 @@
 
 #include "../include/tools.h"
 
+//sert à rien mais nous sert dans la fonction Decode64, on laisse ça ici pour montrer qu'on a essayé de faire quelque chose...
 #define TEMP_PATH "temp.jpg"
-#define DELETE_TEMP "rm temp"
 
 char encoding_table[] = {
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -213,7 +213,7 @@ unsigned char* ReadFile(char* fileName, size_t* outSize) {
         i++;
     }
     
-    if (i != (size_t)size) {
+    if (i != (size_t)size) {//cast en size_t pour éviter warning
         printf("Erreur: %zu bytes lus au lieu de %ld\n", i, size);
     }
     

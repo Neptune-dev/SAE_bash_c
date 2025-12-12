@@ -9,8 +9,9 @@
 
 int Decipher (char* key, char* target)
 {
-    size_t fileSize; //taille calculée dans ReadFile
-    unsigned char* file = ReadFile(target, &fileSize); // lecture du fichier et taille correcte dans fileSize
+    // lecture du fichier via ReadFile et taille correcte dans fileSize (passage par adresse)
+    size_t fileSize;
+    unsigned char* file = ReadFile(target, &fileSize); 
     if (!file) {
         perror("Erreur lors de la lecture du fichier");
         return EXIT_FAILURE;
