@@ -65,7 +65,16 @@ char * Encode64 (char *s,size_t size)
     }
 
     temp = (unsigned char*) malloc (sizeof(unsigned char) * (size + 1)); // fichier de travail, outputLen + 1 pour le '\0
+    if (!temp) {
+        perror("Erreur allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
+
     output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
+    if (!output) {
+        perror("Erreur allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < size; i++)
     {
@@ -118,6 +127,10 @@ char * Vignere (char* key, char* s)
     int keyLen = strlen(key); //taille de la clé
     
     output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
+    if (!output) {
+        perror("Erreur allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
 
     int charIndex;
     int offset;
@@ -152,6 +165,10 @@ char * Devignere (char* key, char* s)
     int keyLen = strlen(key); //taille de la clé
     
     output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
+    if (!output) {
+        perror("Erreur allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
 
     int charIndex;
     int offset;
@@ -206,7 +223,7 @@ unsigned char* ReadFile(char* fileName, size_t* outSize) {
         perror("Erreur allocation mémoire");
         fclose(file);
         *outSize = 0;
-        return NULL;
+        return NULL; // on exit pas : c'est à l'utilisateur de gérer la non lecture de fichier
     }
     
     // Lire caractère par caractère
@@ -252,6 +269,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         perror("Erreur allocation mémoire");
         exit(EXIT_FAILURE);
     }
+
     int deIndex;
     int enIndex;
     int offset;

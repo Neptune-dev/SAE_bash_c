@@ -59,6 +59,7 @@ int main (int argc, char * argv[])
         perror("Erreur lors de la lecture du fichier");
         return EXIT_FAILURE;
     }
+
     encryptedKey = Encode64(argv[1], strlen(argv[1]));
     printf("Clef Encodée : %s\n", encryptedKey);
     a = Encode64(file,fileSize);
