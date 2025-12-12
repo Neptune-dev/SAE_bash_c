@@ -18,9 +18,27 @@ static char encoding_table[] = {
                                 '4', '5', '6', '7', '8', '9', '+', '/'
                             };
 
+static unsigned char* output;
+static unsigned char* temp;
+static unsigned char* shrunk;
+
 void ToolsGarbageCollector ()
 {
-    
+    if (output != NULL)
+    {
+        free(output);
+        output = NULL;
+    }
+    if (temp != NULL)
+    {
+        free(temp);
+        temp = NULL;
+    }
+    if (shrunk != NULL)
+    {
+        free(shrunk);
+        shrunk = NULL;
+    }
 }
 
 // encode une chaine en base 64
@@ -46,8 +64,8 @@ char * Encode64 (char *s,size_t size)
         outputLen -= padding; // on tronque la sortie
     }
 
-    unsigned char* temp = (unsigned char*) malloc (sizeof(unsigned char) * (size + 1)); // fichier de travail, outputLen + 1 pour le '\0
-    char* output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
+    temp = (unsigned char*) malloc (sizeof(unsigned char) * (size + 1)); // fichier de travail, outputLen + 1 pour le '\0
+    output = (char*) malloc ((outputLen + 1) * sizeof(char)); // fichier de retour
 
     for (int i = 0; i < size; i++)
     {
@@ -66,7 +84,6 @@ char * Encode64 (char *s,size_t size)
     }
 
     output[outputLen] = '\0'; //fin de chaine
-    free(temp);
     return output;
 }
 
@@ -81,14 +98,14 @@ char * Decode64(char * s) {
     
     if (fp == NULL) {
         perror("Échec de popen");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     if (pclose(fp) == -1) {
         perror("Échec de pclose");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     size_t TEMP_SIZE;
-    char * output = ReadFile(TEMP_PATH, &TEMP_SIZE);
+    output = ReadFile(TEMP_PATH, &TEMP_SIZE);
     return output;
 
 
@@ -100,7 +117,7 @@ char * Vignere (char* key, char* s)
     int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
-    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
+    output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
     int charIndex;
     int offset;
@@ -134,7 +151,7 @@ char * Devignere (char* key, char* s)
     int fileLen = strlen(s); //taille du fichier
     int keyLen = strlen(key); //taille de la clé
     
-    char* output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
+    output = (char*) malloc (sizeof(char) * (fileLen + 1)); //fichier de retour
 
     int charIndex;
     int offset;
@@ -184,7 +201,7 @@ unsigned char* ReadFile(char* fileName, size_t* outSize) {
         return NULL;
     }
     
-    unsigned char* output = malloc(size);  // Ne pas ajouter +1, pas besoin du '\0'
+    output = malloc(size);  // Ne pas ajouter +1, pas besoin du '\0'
     if (!output) {
         perror("Erreur allocation mémoire");
         fclose(file);
@@ -230,10 +247,10 @@ void WriteFile(char* fileName, char* s)
 char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
 {
     int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
-    char * output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
+    output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
     if (!output) {
         perror("Erreur allocation mémoire");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     int deIndex;
     int enIndex;
@@ -274,7 +291,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         *keySize = cycle;
         output[cycle] = '\0';
 
-        char * shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
+        shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
 
         output = shrunk;
         
