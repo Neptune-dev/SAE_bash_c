@@ -3,8 +3,15 @@
 
 #include "../include/decipherbody.h"
 
+void DecipherExecGarbageCollector ()
+{
+    DecipherGarbageCollector();
+}
+
 int main (int argc, char * argv[])
 {
+    atexit(DecipherExecGarbageCollector);
+    
     //on vérifie le nombre d'arguments d'arguments
     if (argc != 3)
     {

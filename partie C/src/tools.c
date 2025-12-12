@@ -18,6 +18,11 @@ static char encoding_table[] = {
                                 '4', '5', '6', '7', '8', '9', '+', '/'
                             };
 
+void ToolsGarbageCollector ()
+{
+    
+}
+
 // encode une chaine en base 64
 char * Encode64 (char *s,size_t size)
 {

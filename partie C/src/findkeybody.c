@@ -5,6 +5,11 @@
 #include "../include/findkeybody.h"
 #include "../include/tools.h"
 
+void FindkeyGarbageCollector ()
+{
+    ToolsGarbageCollector();
+}
+
 int FindKey (char* def, char* enf)
 {
     size_t fileSize1;

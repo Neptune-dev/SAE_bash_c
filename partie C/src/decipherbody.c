@@ -6,32 +6,65 @@
 #include "../include/decipherbody.h"
 #include "../include/tools.h"
 
+static unsigned char* file;
+static char* a;
+static char* b;
+static char* filename;
+static char* encodedKey;
+
+void DecipherGarbageCollector()
+{
+    ToolsGarbageCollector();
+
+    if (a != NULL)
+    {
+        free(a);
+        a = NULL;
+    }
+    if (b != NULL)
+    {
+        free(b);
+        b = NULL;
+    }
+    if (file != NULL)
+    {
+        free(file);
+        file = NULL;
+    }
+    if (filename != NULL)
+    {
+        free(filename);
+        filename = NULL;
+    }
+    if (encodedKey != NULL)
+    {
+        free(encodedKey);
+        encodedKey = NULL;
+    }
+}
 
 int Decipher (char* key, char* target)
 {
     size_t fileSize; //taille calculée dans ReadFile
-    unsigned char* file = ReadFile(target, &fileSize); // lecture du fichier et taille correcte dans fileSize
+    file = ReadFile(target, &fileSize); // lecture du fichier et taille correcte dans fileSize
     if (!file) {
         perror("Erreur lors de la lecture du fichier");
         return EXIT_FAILURE;
     }
-    char* encodedKey = Encode64(key, strlen(key));
+    encodedKey = Encode64(key, strlen(key));
     printf("Clef encodée : %s\n", encodedKey);
     //strlen passe pas donc on passe la vraie taille en paramètre de toutes les fonctions d'encodage/décodage et de vignere
-    char* a = Encode64(file, fileSize);
+    a = Encode64(file, fileSize);
     printf("Encode64 : %s\n", a);
     //FONCTIONNEL !!!!!
-    char* b = Devignere(encodedKey, a);
+    b = Devignere(encodedKey, a);
     printf("Devignere : %s\n", b);
-    char* filename = "deciphered_output.txt";
+    filename = "deciphered_output.txt";
     WriteFile(filename, b);
     //faire un base64 -d deciphered_output.txt
     //char* c = Decode64(b);
     printf("✓ Déchiffrage terminé avec succès !\n");
 
-    free(file);
-    free(a);
-    free(b);
 
     return EXIT_SUCCESS;
 }

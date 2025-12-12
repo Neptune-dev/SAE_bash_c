@@ -5,6 +5,8 @@
 
 int main (int argc, char* argv[])
 {
+    atexit(FindkeyGarbageCollector);
+
     //on vérifie le nombre d'arguments d'arguments
     if (argc != 3)
     {
