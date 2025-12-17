@@ -94,8 +94,6 @@ char * Decode64(char * s) {
     size_t TEMP_SIZE;
     char * output = ReadFile(TEMP_PATH, &TEMP_SIZE);
     return output;
-
-
 }
 
 // chiffre la chaine table par le chiffre de Vignère avec la clé répétée key, qui doit être en B64
@@ -237,6 +235,15 @@ void WriteFile(char* fileName, char* s)
     fprintf(file, "%s", s);
 
     fclose(file);
+}
+
+// décompresse un fichier .tar.gz dans un dossier
+void Ungz (char* target, char* destinationDirectory)
+{
+    char command[256];
+
+    snprintf(command, sizeof(command), "mkdir %s | tar -xzf %s -C %s", destinationDirectory, target, destinationDirectory);
+    system(command);
 }
 
 // trouve la clef et met sa taille dans la variable pointée par keySize
