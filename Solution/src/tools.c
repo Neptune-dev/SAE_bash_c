@@ -19,7 +19,7 @@ char encoding_table[] = {
                             };
 
 // encode une chaine en base 64
-char * Encode64 (char *s,size_t size)
+char * Encode64 (char *s, size_t size)
 {
     int outputLen = 4 * ((size + 2) / 3); // nombre de caractères base64
     /*
@@ -292,6 +292,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
         shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
         if (!shrunk) {
             perror("Erreur reallocation mémoire");
+            free(output);
             exit(EXIT_FAILURE);
         }
         output = shrunk;
