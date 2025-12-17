@@ -4,6 +4,8 @@
 Solution/src/*.o
 Solution/src/*.exe
 Solution/src/*.a
+Solution/*.exe
+Solution/*.a
 cipher
 decipher
 findkey

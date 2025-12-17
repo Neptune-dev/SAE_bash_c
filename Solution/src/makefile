@@ -1,18 +1,19 @@
+OUT = ../
 INCLUDE = ./include
 SRC = ./
 CFLAGS = -I$(INCLUDE)
 
 # regle defaut
-all: cipher decipher findkey libsae.a
+all: $(OUT)cipher $(OUT)decipher $(OUT)findkey $(OUT)libsae.a
 
 # executables
-cipher: cipher.o tools.o
+$(OUT)cipher: cipher.o tools.o
 	gcc $^ -o $@
 
-decipher: decipher.o decipherbody.o tools.o
+$(OUT)decipher: decipher.o decipherbody.o tools.o
 	gcc $^ -o $@
 
-findkey: findkey.o findkeybody.o tools.o
+$(OUT)findkey: findkey.o findkeybody.o tools.o
 	gcc $^ -o $@
 
 # objets
@@ -35,7 +36,7 @@ tools.o: $(SRC)/tools.c $(INCLUDE)/tools.h
 	gcc $(CFLAGS) -c $<
 
 # lib
-libsae.a: decipherbody.o findkeybody.o
+$(OUT)libsae.a: decipherbody.o findkeybody.o
 	ar rcs $@ $^
 	ranlib libsae.a
 
@@ -43,4 +44,4 @@ libsae.a: decipherbody.o findkeybody.o
 .PHONY: clean
 
 clean:
-	rm -f *.o cipher decipher findkey libsae.a
+	rm -f *.o $(OUT)cipher $(OUT)decipher $(OUT)findkey $(OUT)libsae.a
