@@ -1,5 +1,5 @@
 INCLUDE = ./include
-SRC = ./src
+SRC = ./
 CFLAGS = -I$(INCLUDE)
 
 # regle defaut

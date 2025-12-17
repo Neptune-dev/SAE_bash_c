@@ -1,9 +1,9 @@
 .vscode
 .vs
 
-partie\ C/*.o
-partie\ C/*.exe
-partie\ C/*.a
+Solution/src/*.o
+Solution/src/*.exe
+Solution/src/*.a
 cipher
 decipher
 findkey
