@@ -3,8 +3,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "../include/decipherbody.h"
-#include "../include/tools.h"
+#include "include/decipherbody.h"
+#include "include/tools.h"
 
 
 int Decipher (char* key, char* target)

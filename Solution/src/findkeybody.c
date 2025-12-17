@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "../include/findkeybody.h"
-#include "../include/tools.h"
+#include "include/findkeybody.h"
+#include "include/tools.h"
 
 int FindKey (char* def, char* enf)
 {

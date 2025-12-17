@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "../include/decipherbody.h"
+#include "include/decipherbody.h"
 
 int main (int argc, char * argv[])
 {

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "../include/findkeybody.h"
+#include "include/findkeybody.h"
 
 int main (int argc, char* argv[])
 {

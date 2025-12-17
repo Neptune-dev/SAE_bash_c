@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/tools.h"
+#include "include/tools.h"
 
 //sert à rien mais nous sert dans la fonction Decode64, on laisse ça ici pour montrer qu'on a essayé de faire quelque chose...
 #define TEMP_PATH "temp.jpg"
