@@ -5,7 +5,7 @@
 #include "include/findkeybody.h"
 #include "include/tools.h"
 
-int FindKey (char* def, char* enf)
+int FindKey (char* def, char* enf, char* outputFileName)
 {
     size_t fileSize1;
     char* decryptedFile = ReadFile(def, &fileSize1);
@@ -27,8 +27,14 @@ int FindKey (char* def, char* enf)
     free(decryptedFile);
     free(encryptedFile);
 
-    fprintf(stdout, "%s\n", key);
-    fprintf(stderr, "%d\n", keySize);
+    if (outputFileName)
+    {
+        WriteFile(outputFileName, key);
+    } else
+    {
+        fprintf(stdout, "%s\n", key);
+        fprintf(stderr, "%d\n", keySize);
+    }
 
     free(key);
 

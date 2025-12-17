@@ -38,7 +38,7 @@ tools.o: $(SRC)/tools.c $(INCLUDE)/tools.h
 # lib
 $(OUT)libsae.a: decipherbody.o findkeybody.o
 	ar rcs $@ $^
-	ranlib libsae.a
+	ranlib $(OUT)libsae.a
 
 # clean
 .PHONY: clean
