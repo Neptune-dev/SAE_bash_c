@@ -63,32 +63,42 @@ int FindKey (char* def, ...)
     outputFileName = va_arg(argList, char*);
     va_end(argList);
 
+    // récupération des bons fichiers, en fonction de sil s'agit d'une archive ou non
+    char* decryptedFile;
+    char* encryptedFile;
+    size_t fileSize1;
+    size_t fileSize2;
+
     if (archive)
     {
-        printf("C'est une archive\n");
+        Ungz(def, "fktmp");
+        printf("C'est une archive, il faut finir le code...\n");
         return EXIT_SUCCESS;
-    }
+    } else
+    {
+        decryptedFile = ReadFile(def, &fileSize1);
+        if (!decryptedFile) {
+            perror("Erreur lors de la lecture du fichier");
+            return EXIT_FAILURE;
+        }
 
-    size_t fileSize1;
-    char* decryptedFile = ReadFile(def, &fileSize1);
-    if (!decryptedFile) {
-        perror("Erreur lors de la lecture du fichier");
-        return EXIT_FAILURE;
+        encryptedFile = ReadFile(enf, &fileSize2);
+        if (!encryptedFile) {
+            perror("Erreur lors de la lecture du fichier");
+            return EXIT_FAILURE;
+        }
     }
+    
+    
 
-    size_t fileSize2;
-    char* encryptedFile = ReadFile(enf, &fileSize2);
-    if (!encryptedFile) {
-        perror("Erreur lors de la lecture du fichier");
-        return EXIT_FAILURE;
-    }
-
+    // appel de l'outil KeyFinder (le coeur du travail)
     int keySize;
     char* key = KeyFinder(Encode64(decryptedFile, fileSize1), Encode64(encryptedFile, fileSize2), &keySize);
 
     free(decryptedFile);
     free(encryptedFile);
 
+    // exxport dans un fichier si demandé, sinon sur les sorties standart et d'erreur
     if (outputFileName)
     {
         WriteFile(outputFileName, key);
