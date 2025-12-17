@@ -291,7 +291,7 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
 
         shrunk = (char*)realloc(output, (cycle + 1) * sizeof(char)); // réallocation pour avoir la bonne taille
         if (!shrunk) {
-            perror("Erreur reallocation mémoire");
+            perror("Erreur de reallocation mémoire");
             free(output);
             exit(EXIT_FAILURE);
         }

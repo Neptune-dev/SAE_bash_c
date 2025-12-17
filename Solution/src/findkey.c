@@ -12,7 +12,11 @@ int main (int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    FindKey (argv[1], argv[2]);
+    if (FindKey (argv[1], argv[2]) != 0)
+    {
+        perror("FindKey à échoué");
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
