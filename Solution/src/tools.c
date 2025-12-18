@@ -238,12 +238,18 @@ void WriteFile(char* fileName, char* s)
 }
 
 // décompresse un fichier .tar.gz dans un dossier
-void Ungz (char* target, char* destinationDirectory)
+int Ungz (char* target, char* destinationDirectory)
 {
     char command[256];
 
     snprintf(command, sizeof(command), "mkdir %s | tar -xzf %s -C %s", destinationDirectory, target, destinationDirectory);
-    system(command);
+    if (system(command))
+    {
+        perror("Ungz error");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 // trouve la clef et met sa taille dans la variable pointée par keySize

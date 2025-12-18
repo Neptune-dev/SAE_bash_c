@@ -71,8 +71,13 @@ int FindKey (char* def, ...)
 
     if (archive)
     {
-        Ungz(def, "fktmp");
-        printf("C'est une archive, il faut finir le code...\n");
+        if (Ungz(def, "fktmp"))
+        {
+            return EXIT_FAILURE;
+        }
+
+        printf("C'est une archive, la v1.0.0 du sujet nous a induit en erreur : cette fonction n'est pas prise en charge.\nMerci de donner directement les fichier (./findkey pour l'aide).\n");
+
         return EXIT_SUCCESS;
     } else
     {

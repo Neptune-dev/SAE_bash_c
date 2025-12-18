@@ -53,12 +53,12 @@ int main (int argc, char* argv[])
     {
         if (FindKey (argv[1], output) != 0) //on vérifie que FindKey renvoie 0 parce que sinon c'est que l'ouverture de fichier a échoué
         {
-            perror("FindKey à échoué");
+            perror("FindKey a echoue");
             return EXIT_FAILURE;
         }
     } else if (FindKey (argv[1], argv[2], output) != 0) //on vérifie que FindKey renvoie 0 parce que sinon c'est que l'ouverture de fichier a échoué
     {
-        perror("FindKey à échoué");
+        perror("FindKey a echoue");
         return EXIT_FAILURE;
     }
     
