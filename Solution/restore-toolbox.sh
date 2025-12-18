@@ -1,6 +1,6 @@
 ./ls-toolbox.sh
-REPERTOIRE=.sh-toolbox;
 code_erreur=$?
+REPERTOIRE=.sh-toolbox;
 
 case $code_erreur in
     1) 

@@ -2,6 +2,7 @@
 
 REPERTOIRE=".sh-toolbox"
 
+# 1. Vérifier les arguments
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <destination-directory>"
     exit 1
@@ -9,7 +10,7 @@ fi
 
 DEST_DIR="$1"
 
-#code de retour 1 si erreur sur .sh-toolbox ou fichier archives manquant
+# Vérifier que .sh-toolbox existe
 if [ ! -d "$REPERTOIRE" ]; then
     echo "Le répertoire $REPERTOIRE n'existe pas."
     exit 1
@@ -20,13 +21,7 @@ if [ ! -f "$REPERTOIRE/archives" ]; then
     exit 1
 fi
 
-#on vérifie qu'il y a au moins une archive .gz dans le répertoire sinon on créé pas le dossier de destination
-if ! ls "$REPERTOIRE"/*.gz >/dev/null 2>&1; then
-    echo "Aucune archive trouvée."
-    exit 1
-fi
-
-# dossier de destination à créer s'il n'existe pas, code de retour 2 si échec de création
+# Créer le dossier de destination s'il n'existe pas
 if [ ! -d "$DEST_DIR" ]; then
     mkdir -p "$DEST_DIR"
     if [ $? -ne 0 ]; then
@@ -35,10 +30,16 @@ if [ ! -d "$DEST_DIR" ]; then
     fi
 fi
 
-#on liste les archives disponibles et l'utilisateur en choisit une
+# 2. Demander à l'utilisateur quelle archive restaurer
 echo "Liste des archives disponibles :"
 N=1
 TOTAL=0
+
+if ! ls "$REPERTOIRE"/*.gz >/dev/null 2>&1; then
+    echo "Aucune archive trouvée."
+    exit 1
+fi
+
 
 for file in "$REPERTOIRE"/*.gz; do
     base_file=$(basename "$file")
@@ -86,46 +87,60 @@ mkdir -p "$output_dir";
 if [ $? -ne 0 ]; then echo "Échec lors de la création du dossier temporaire pour décompression"; exit 3; fi
 
 # Décompression du fichier x -> extrait; z -> dezippe car .gz; f -> nom du fichier dans la commande; C -> dans le répertoire ci-contre
-tar -xzf "$REPERTOIRE/$fichier" -C "$output_dir";
+tar -xzf "$fichier" -C "$output_dir";
 # si échec de la commande tar
 if [ $? -ne 0 ]; then echo "La décompression du fichier a échouée."; exit 3; fi
 
 #s'il n y a pas de fichier logs
 if [ ! -f "$output_dir/var/log/auth.log" ]; then exit 4; fi
 #s'il n'y a pas de dossiers dans /data
-if [ $(ls "$output_dir/data"| wc -w) -eq 0 ]; then exit 5; fi
+if [ $(ls $output_dir/data| wc -w) -eq 0 ]; then exit 5; fi
 
 
 # Date de référence (date de dernière connexion sur le compte admin) + conversion en timestamp pour comparaison
-date_ref=$(grep -i "Accepted password for admin from" "$output_dir/var/log/auth.log" | tail -n 1 | cut -d" " -f1,2,3);
+date_ref=$(grep -i "Accepted password for admin from" $output_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
 ts_ref=$(date -d "$date_ref" +%s);
+echo "Date de référence : $date_ref (timestamp: $ts_ref)";
 
-
-grep -rl "" "$DEST_DIR/data" | while read -r chiffre; do
-    [ -f "$chiffre" ] || continue
-
-    mtime_chiffre=$(stat -c %Y "$chiffre" 2>/dev/null) || continue
-    [ "$mtime_chiffre" -le "$ts_ref" ] && continue
-    base_suspect=$(basename "$chiffre")
-    # -------- 3. Recherche du clair correspondant --------
-    grep -rl "" "$DEST_DIR" | while read -r clair; do
-        [ -f "$clair" ] || continue
-
-        mtime_clair=$(stat -c %Y "$clair" 2>/dev/null) || continue
-        [ "$mtime_clair" -ge "$ts_ref" ] && continue
-
-        if [ "$(basename "$clair")" = "$base_suspect" ]; then
-            # -------- 4. Appel de findkey + base64 -d pour déchiffrer --------
-            key_b64=$(./findkey "$clair" "$chiffre")
-
-            if [ -z "$key_b64" ]; then
-                echo "[ERREUR] findkey n'a retourné aucune clé"
-                break
+# Afficher les fichiers créés après la date de référence dans chaque dossier de /data
+echo "Fichiers par paire (modifié + non modifié avec même nom et taille) :"
+find "$output_dir/data" -type f | while read -r file_modifie; do
+    mtime_file=$(stat -c %Y "$file_modifie" 2>/dev/null)
+    
+    # Vérifier si le fichier est modifié
+    if [ "$mtime_file" -ge "$ts_ref" ]; then
+        name_modifie=$(basename "$file_modifie")
+        size_modifie=$(stat -c %s "$file_modifie" 2>/dev/null)
+        
+        # on utilise find pour parcourir à nouveau tous les fichiers et trouver les non modifiés
+        find "$output_dir/data" -type f | while read -r file_non_modifie; do
+            mtime_file2=$(stat -c %Y "$file_non_modifie" 2>/dev/null)
+            
+            # Vérifier si le fichier est non modifié
+            if [ "$mtime_file2" -lt "$ts_ref" ]; then
+                name_non_modifie=$(basename "$file_non_modifie")
+                size_non_modifie=$(stat -c %s "$file_non_modifie" 2>/dev/null)
+                
+                # Comparer nom et taille
+                if [ "$name_modifie" = "$name_non_modifie" ] && [ "$size_modifie" -eq "$size_non_modifie" ]; then
+                    relative_modifie="${file_modifie#$output_dir/}"
+                    relative_non_modifie="${file_non_modifie#$output_dir/}"
+                    echo "Paire trouvée:"
+                    echo "  Modifié:     $relative_modifie"
+                    echo "  Non modifié: $relative_non_modifie"
+                    
+                    # Appeler findkey pour trouver la clé
+                    key=$(./src/findkey "$file_non_modifie" "$file_modifie" 2>/dev/null)
+                    if [ $? -eq 0 ] && [ -n "$key" ]; then
+                        echo "  Clé: $key"
+                    else
+                        echo "  Erreur: Impossible de trouver la clé"
+                    fi
+                    break
+                fi
             fi
-
-            key=$(echo "$key_b64" | base64 -d 2>/dev/null);
-            echo "[CLE DECHIFFREE] $key"
-            break
-        fi
-    done
+        done
+    fi
 done
+
+exit 0;
