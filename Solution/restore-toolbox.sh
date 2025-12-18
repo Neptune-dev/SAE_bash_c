@@ -29,10 +29,17 @@ case $code_erreur in
         echo "Voulez-vous réinitialiser le contenu du fichier archives afin de restaurer l'environnement de travail ? (oui ou non)";
         read verification;
         if [ $verification == "oui" ]; then
-            N=$(ls $REPERTOIRE/*.gz | wc -l); # nombre de lignes dans le répertoire .sh-toolbox -> dossier non corrompu
+            #cas bonus où il n'y a plus de fichier .gz dans le répertoire .sh-toolbox
+            if [ $(ls $REPERTOIRE | wc -l) -eq 1 ]; then
+                echo "Aucun fichier .gz dans le répertoire $REPERTOIRE. Le fichier archives a été remis à zéro.";
+                echo "0" > "$REPERTOIRE/archives"
+                exit 0;
+            fi
+
+            N=$(ls "$REPERTOIRE"/*.gz | wc -l); # nombre de lignes dans le répertoire .sh-toolbox -> dossier non corrompu
             echo "$N" > "$REPERTOIRE/archives" # > on ajoute directement le nombre de fichiers .gz dans le fichier archives
 
-            for fichier in $(ls $REPERTOIRE/*.gz)
+            for fichier in $(ls "$REPERTOIRE"/*.gz)
             do
                 #pour tous les .gz dans le répertoire, on prend le basename et la date d'ajout et on l'ajoute dans le fichier archives
                 #(on supprime l'ancien contenu pour afficher le nouveau)
@@ -40,6 +47,7 @@ case $code_erreur in
                 date_suppr=$(date +"%Y%m%d-%H%M%S");
                 echo "$nom_fichier:$date_suppr:" >> "$REPERTOIRE/archives"
             done
+            echo "Le fichier archives a été remis à jour.";
         fi
     ;;
 esac

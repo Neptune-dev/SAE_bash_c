@@ -23,7 +23,7 @@ int main (int argc, char* argv[])
     int taille = strlen(argv[1]);
 
     //on a une archive, sinon deux noms de fichiers
-    if (argv[1][taille - 3] == '.' | argv[1][taille - 2] == 'g' | argv[1][taille - 1] == 'z')
+    if (argv[1][taille - 3] == '.' || argv[1][taille - 2] == 'g' || argv[1][taille - 1] == 'z')
     {
         archive = 1;
     } else if (argc < 3) //on vérifie le nombre d'arguments minimal dans le cas des noms de fichiers
@@ -51,12 +51,12 @@ int main (int argc, char* argv[])
     // on peut enfin executer la fonction FindKey
     if (archive)
     {
-        if (FindKey (argv[1], output) != 0) //on vérifie que FindKey renvoie 0 parce que sinon c'est que l'ouverture de fichier a échoué
+        if (FindKey (argv[1], argv[1], output) != 0) //on passe le même fichier deux fois pour une archive (pas géré)
         {
             perror("FindKey a echoue");
             return EXIT_FAILURE;
         }
-    } else if (FindKey (argv[1], argv[2], output) != 0) //on vérifie que FindKey renvoie 0 parce que sinon c'est que l'ouverture de fichier a échoué
+    } else if (FindKey (argv[1], argv[2], output) != 0)
     {
         perror("FindKey a echoue");
         return EXIT_FAILURE;

@@ -55,7 +55,7 @@ int FindKey (char* def, ...)
     char* outputFileName = NULL;
     char* enf = NULL;
     int archive = 1; //booléen qui nous permet de savoir si c'est une archive ou pas plus tard
-    if (def[taille - 3] != '.' | def[taille - 2] != 'g' | def[taille - 1] != 'z')
+    if (def[taille - 3] != '.' || def[taille - 2] != 'g' || def[taille - 1] != 'z')
     {
         enf = va_arg(argList, char*);
         archive = 0;
@@ -81,15 +81,16 @@ int FindKey (char* def, ...)
         return EXIT_SUCCESS;
     } else
     {
-        decryptedFile = ReadFile(def, &fileSize1);
+        decryptedFile = (char*)ReadFile(def, &fileSize1);
         if (!decryptedFile) {
             perror("Erreur lors de la lecture du fichier");
             return EXIT_FAILURE;
         }
 
-        encryptedFile = ReadFile(enf, &fileSize2);
+        encryptedFile = (char*)ReadFile(enf, &fileSize2);
         if (!encryptedFile) {
             perror("Erreur lors de la lecture du fichier");
+            free(decryptedFile);
             return EXIT_FAILURE;
         }
     }

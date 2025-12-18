@@ -255,7 +255,10 @@ int Ungz (char* target, char* destinationDirectory)
 // trouve la clef et met sa taille dans la variable pointée par keySize
 char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
 {
-    int maxSize = strlen(decrypted); // taille du fichier en clair = taille max de la clef
+    int decryptedLen = strlen(decrypted);
+    int encryptedLen = strlen(encrypted);
+    int maxSize = (decryptedLen < encryptedLen) ? decryptedLen : encryptedLen; // utiliser le minimum
+        
     char * output = (char*)malloc((maxSize + 1) * sizeof(char)); // fichier de retour
     if (!output) {
         perror("Erreur allocation mémoire");
@@ -314,7 +317,6 @@ char * KeyFinder (char * decrypted, char * encrypted, int * keySize)
     {
         *keySize = tempSize;
     }
-    free(shrunk);
 
     return output;
 }
@@ -332,7 +334,9 @@ int DetectKeyCycle (char * key, int len)
     for (int i = 1; i <= len; i++)
     {
         ok = 1;
-        for (int j = 0; j < len; j++)
+        // Vérifier uniquement les répétitions complètes
+        int complete_len = (len / i) * i;  // nb de caractères qui forment des cycles complets
+        for (int j = 0; j < complete_len; j++)
         {
             if (key[j] != key[j % i])
             {

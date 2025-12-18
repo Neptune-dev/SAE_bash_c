@@ -100,10 +100,8 @@ if [ $(ls $output_dir/data| wc -w) -eq 0 ]; then exit 5; fi
 # Date de référence (date de dernière connexion sur le compte admin) + conversion en timestamp pour comparaison
 date_ref=$(grep -i "Accepted password for admin from" $output_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
 ts_ref=$(date -d "$date_ref" +%s);
-echo "Date de référence : $date_ref (timestamp: $ts_ref)";
 
 # Afficher les fichiers créés après la date de référence dans chaque dossier de /data
-echo "Fichiers par paire (modifié + non modifié avec même nom et taille) :"
 find "$output_dir/data" -type f | while read -r file_modifie; do
     mtime_file=$(stat -c %Y "$file_modifie" 2>/dev/null)
     
@@ -129,18 +127,14 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                     echo "  Modifié:     $relative_modifie"
                     echo "  Non modifié: $relative_non_modifie"
                     
-                    # Appeler findkey pour trouver la clé
-                    key=$(./src/findkey "$file_non_modifie" "$file_modifie" 2>/dev/null)
-                    if [ $? -eq 0 ] && [ -n "$key" ]; then
-                        echo "  Clé: $key"
-                    else
-                        echo "  Erreur: Impossible de trouver la clé"
-                    fi
+                    # findkey pour retrouver la clé et base64 -d pour décoder la clé et l'afficher
+                    key=$(./findkey "$file_non_modifie" "$file_modifie" 2>/dev/null);
+                    key_decoded=$(echo "$key" | base64 -d 2>/dev/null);
+                    echo "  Clé: $key_decoded"
                     break
                 fi
             fi
         done
     fi
 done
-
 exit 0;
