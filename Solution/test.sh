@@ -128,7 +128,8 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                     echo "Paire trouvée:"
                     echo "  Modifié:     $relative_modifie"
                     echo "  Non modifié: $relative_non_modifie"
-                                fi
+                fi
+            fi
         done
     fi
 done
