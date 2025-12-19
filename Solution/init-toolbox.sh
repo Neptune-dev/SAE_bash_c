@@ -5,7 +5,13 @@ REPERTOIRE=.sh-toolbox;
 if [ ! -d "$REPERTOIRE" ]; then
     echo "Le dossier $REPERTOIRE a été créé.";
     mkdir $REPERTOIRE;
-    #exit 0;
+    #cas où il faut créer les deux (fichier et dossier)
+    if [ ! -f "$REPERTOIRE/archives" ]; then
+        echo "Le dossier $REPERTOIRE/archives a été créé.";
+        touch $REPERTOIRE/archives;
+        echo "0" > $REPERTOIRE/archives;
+    fi
+    exit 0;
 fi
 
 #création du fichier archives s'il existe pas + init à 0
@@ -13,7 +19,7 @@ if [ ! -f "$REPERTOIRE/archives" ]; then
     echo "Le dossier $REPERTOIRE/archives a été créé.";
     touch $REPERTOIRE/archives;
     echo "0" > $REPERTOIRE/archives;
-    #exit 0;
+    exit 0;
 fi
 
 if [[ ! -f "cipher" && ! -f "decipher" ]]; then
