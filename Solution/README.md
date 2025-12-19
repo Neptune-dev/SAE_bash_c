@@ -64,7 +64,7 @@ Affiche la liste des archives présentes dans le répertoire `.sh-toolbox` en li
 **Description :**
 Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas suivants :
 
-1. **Codes de retour :**
+1. **Codes d'erreur 1 :**
    Si le dossier `.sh-toolbox` n'est pas présent, le script appelle `init-toolbox.sh` pour l'initialisation.
 
 2. **Code d'erreur 2 :**
@@ -90,7 +90,7 @@ Prend le code d'erreur retourné par `./ls-toolbox.sh` et gère les trois cas su
 **Description :**
 Affiche la liste des archives .gz disponibles, permet d'en choisir une et la décompresse. Affiche ensuite l'heure de la dernière connexion suspecte et affiche la liste des fichiers modifiés après la connexion suspecte. Affiche également la liste des fichiers non modifiés qui ont le même nom que les fichiers modifiés et identifiés.
 
-0. **Code de retours :**
+0. **Code d'erreur 0 :**
    Tout fonctionne.
 1. **Code d'erreur 1 :**
    Si le dossier `.sh-toolbox` n'existe pas.
@@ -112,7 +112,7 @@ Affiche la liste des archives .gz disponibles, permet d'en choisir une et la dé
 Dézippe l'archive choisie par l'utilisateur parmi toutes les archives disponibles dans le répertoire .sh-toolbox pour la stocker dans le répertoire `output_directory`.
 Ce script détecte ensuite les paires de fichiers cryptés et clairs afin d'appeler l'exécutable `findkey` afin de pouvoir récupérer la clé et de la stocker dans `.sh-toolbox/archives`. Ce script appelle ensuite l'exécutable `decipher` afin de déchiffrer l'intégralité des fichiers et de mettre le résultat final dans un dossier `output` présent dans le répertoire courant.
 
-0. **Code de retours :**
+0. **Code d'erreur 0 :**
    Tout fonctionne.
 1. **Code d'erreur 1 :**
    Si le dossier `.sh-toolbox` n'existe pas.
