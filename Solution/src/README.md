@@ -1,10 +1,10 @@
 # Guide de la partie C
 
-Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnalités.
+Ce guide décrit les fichiers disponibles dans le répertoire `src` et leurs fonctionnalités.
 
 ## Conseils d'utilisation
 
-1. Pour compiler les fichiers source, exécutez la commande `make` depuis le dossier src.
+1. Pour compiler les fichiers source, exécutez, depuis le répertoire `src`, la commande `make`
 2. Trois exécutables et une librairie statique sont créés.
 
 * **Utilisation des exécutables seuls** : voir la liste des fichiers pour :

@@ -1,6 +1,8 @@
 # Guide de la partie Bash
 
-Ce guide décrit les scripts disponibles dans le projet Bash et leurs fonctionnalités.
+Ce guide décrit les scripts disponibles dans le projet Bash et leurs fonctionnalités. Certains scripts peuvent nécessiter la compilation préalable des exécutables de la partie C. Afin d'éviter tout problème, il est recommandé d'alors commencer par cette étape, décrite dans le **Guide de la partie C**, et dont voici un court résumer :
+
+Pour compiler les fichier de la partie C, rendez vous dans le répertoire `/src` et exécutez la commande `make`. Une fois revenu dans le répertoire `/SOlution`, vous êtes libres d'utiliser les scripts bash décrits ci-dessous.
 
 ---
 
@@ -126,18 +128,18 @@ Ce script détecte ensuite les paires de fichiers cryptés et clairs afin d'appe
 
 # Guide de la partie C
 
-Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnalités.
+Ce guide décrit les fichiers disponibles dans le répertoire `src` et leurs fonctionnalités.
 
 ## Conseils d'utilisation
 
-1. Pour compiler les fichiers source, exécutez la commande `make`
+1. Pour compiler les fichiers source, exécutez, depuis le répertoire `src`, la commande `make`
 2. Trois exécutables et une librairie statique sont créés.
 
-* Utilisation des exécutables seuls : voir la liste des fichiers pour :
+* **Utilisation des exécutables seuls** : voir la liste des fichiers pour :
     * `cipher.c`
     * `decipher.c`
     * `findkey.c`
-* Utilisation de la biliothèque statique :
+* **Utilisation de la biliothèque statique** :
     * inclure les fonctions désirées de la bibliothèque :
         ```C
         #include "decipherbody.h"
@@ -151,27 +153,31 @@ Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnali
 
         /* trouve la clef en base64, l'affiche sur la sortie standart
            la taille de la clef est donnée sur la sortie d'erreur      */
-        FindKey(char* fichierclair, char* fichierchiffree);
+        FindKey(char* fichierclair, char* fichierchiffree, char* fichierdesortie);
         ```
 
 <br>
 
 # Liste des fichiers
 
-### `makefile`
+## /src
+
+Ce repertoire contient le `makefile`, tous les fichier `.c`, ainsi que les fonctions et programmes principaux de la solution.
+
+---
+
+### 1. `makefile`
 
 **Description :**
 Permet de compiler l'ensemble des fichiers mentionnés ci-dessous
 
----
+**Utilisation :**
 
-## /src
-
-Ce repertoire contient tous les fichier `.c`, possédant chacun une fonction de nettoyage de la mémoire ainsi que les fonctions et programmes principaux de la solution.
+`make`
 
 ---
 
-### 1. `cipher.c`
+### 2. `cipher.c`
 
 **Description :**
 Chiffre un fichier avec une clef, selon la méthode de Vigenère en base64.
@@ -186,10 +192,10 @@ Pour avoir le résultat décodé, il faudra ensuite passer par la commande Bash
 
 ---
 
-### 2. `decipher.c`
+### 3. `decipher.c`
 
 **Description :**
-Utilise `decipherbody.c` pour déchiffrer un fichier grâce à sa clef, selon la méthode de Vigenère en base64.
+Utilise `decipherbody.c` pour déchiffrer un fichier grâce à sa clef, selon la méthode de Vigenère en base64. La sortie est écrite sur un fichier nommé `deciphered_output.txt`
 
 **Utilisation :**
 
@@ -197,43 +203,50 @@ Utilise `decipherbody.c` pour déchiffrer un fichier grâce à sa clef, selon la
 
 Pour avoir le résultat décodé, il faudra ensuite passer par la commande Bash 
 
-`base64 -d <monfichierencodé> > <monfichierdécodé>`
+`base64 -d deciphered_output.txt > <nomdesortie>`
 
 ---
 
-### 3. `decipherbody.c`
+### 4. `decipherbody.c`
 
 **Description :**
-Contient une fonction qui déchiffre un fichier grâce à sa clef, selon la méthode de Vigenère en base64.
+Contient une fonction qui déchiffre un fichier grâce à sa clef, selon la méthode de Vigenère en base64. La sortie est écrite sur un fichier nommé `deciphered_output.txt`
 
 ---
 
-### 4. `findkey.c`
+### 5. `findkey.c`
 
 **Description :**
 Utilise `findkeybody.c` pour trouver la clef de chiffrement d'un fichier chiffré grâce à sa version en clair.
 
 **Utilisation :**
 
-`./findkey <monfichierclair> <monfichierchiffre>`
+`./findkey <fichiers> [options]`
+
+**Fichiers possibles** :
+* `<fichierclair> <fichierchiffre>` : Noms de deux fichiers a traiter *(recommandé)*
+* `<archive>` : ouvre une archive.tar.gz *(Non foncitonnel : cette méthode existe, suite à une coquille du sujet, mais retournera un message indiquant qu'elle est incomplète)*
+
+**Options** :
+* `-o <fichierdesortie>` : Stocke la clef dans un fichier de sortie
 
 ---
 
-### 5. `findkeybody.c`
+### 6. `findkeybody.c`
 
 **Description :**
-Contient une fonction qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standard tandis que la taille de la clef est donnée sur la sortie d'erreur.
+Contient une fonction variadique qui trouve la clef de chiffrement d'un fichier chiffré grâce à sa version en clair. La clef encodée en Base64 est donnée sur la sortie standard tandis que la taille de la clef est donnée sur la sortie d'erreur. Si un nom de fichier de retour est donné en dernier paramètre, la clef est écrite dans ce fichier.
 
 ---
 
-### 6. `tools.c`
+### 7. `tools.c`
 
 **Description :**
-Contient la table des caractères de la base64, mais aussi toutes les fonctions nécessaires au fontionnement de `cipher.c`, `decipher.c` et `findkey.c`. Bon nombre de ces fonctions sont partagées par les trois programmes, c'est pourquoi elles sont rassemblées dans ce fichier.
+Contient la table des caractères de la base64, mais aussi toutes les fonctions nécessaires au fontionnement de `cipher.c`, `decipherbody.c` et `findkeybody.c`. Bon nombre de ces fonctions sont partagées par les trois programmes, c'est pourquoi elles sont rassemblées dans ce fichier.
 
 ---
 
-## /include
+## /src/include
 
 Ce repertoire contient tous les fichier `.h`, les prototypes des fichiers de `/src`
 
