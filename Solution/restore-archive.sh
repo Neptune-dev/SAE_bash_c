@@ -67,6 +67,25 @@ while true; do
     break
 done
 
+# Sélectionner l'option d'export de la clef
+echo "Options :";
+echo "1) clef sauvegardée dans le fichier archive";
+echo "2) clef sauvegardée dans un autre fichier";
+while true; do
+    echo -n "Entrez votre choix : "
+    read EXPORT
+
+    if ! [[ "$EXPORT" =~ ^[1-2]+$ ]]; then
+        echo "Erreur : vous devez entrer un nombre."
+        continue
+    fi
+    if (( EXPORT != 1 && EXPORT != 2)); then
+        echo "Erreur : numéro invalide."
+        continue
+    fi
+    break
+done
+
 # Récupérer le nom de l'archive sélectionnée
 fichier=""
 N=1
@@ -101,6 +120,12 @@ if [ $(ls $output_dir/data| wc -w) -eq 0 ]; then exit 5; fi
 date_ref=$(grep -i "Accepted password for admin from" $output_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
 ts_ref=$(date -d "$date_ref" +%s);
 
+# création du dossier de clefs
+if [ $EXPORT -eq 2 ]; then
+    fichier_sans_ext=$(echo "$REPERTOIRE/$fichier" | sed "s/.tar.gz//");
+    mkdir "$fichier_sans_ext" 2>/dev/null;
+fi
+
 # Afficher les fichiers créés après la date de référence dans chaque dossier de /data
 find "$output_dir/data" -type f | while read -r file_modifie; do
     mtime_file=$(stat -c %Y "$file_modifie" 2>/dev/null)
@@ -127,15 +152,31 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                     echo "  Modifié:     $relative_modifie"
                     echo "  Non modifié: $relative_non_modifie"
                     
-                    # findkey pour retrouver la clé et base64 -d pour décoder la clé et l'afficher
-                    key=$(./findkey "$file_non_modifie" "$file_modifie" 2>/dev/null);
-                    key_decoded=$(echo "$key" | base64 -d 2>/dev/null);
+                    # findkey pour retrouver la clé et base64 -d pour décoder la clé et la traiter
+                    if [ $EXPORT -eq 1 ]; then
+                        key=$(./findkey "$file_non_modifie" "$file_modifie" 2>/dev/null);
+                        key_decoded=$(echo "$key" | base64 -d 2>/dev/null);
+                    else
+                        ./findkey "$file_non_modifie" "$file_modifie" -o "$fichier_sans_ext/KEY_temp";
+                        cat "$fichier_sans_ext/KEY_temp" | base64 -d > "$fichier_sans_ext/KEY" 2>/dev/null;
+                        rm "$fichier_sans_ext/KEY_temp" 2>/dev/null;
+                        key_decoded=$(cat "$fichier_sans_ext/KEY");
+                    fi
                     echo "  Clé: $key_decoded"
+
+                    # update le fichier archive
+                    if [ $EXPORT -eq 1 ]; then
+                        sed -i "s/\($fichier:[^:]*:\).*$/\1$key_decoded:s/" "$REPERTOIRE/archives";
+                    else
+                        sed -i "s/\($fichier:[^:]*:\).*$/\1:f/" "$REPERTOIRE/archives";
+                    fi
 
                     # decipher pour récupérer le contenu
                     ./decipher "$key_decoded" "$file_modifie" 2>/dev/null;
-                    mkdir output;
-                    cat "deciphered_output.txt" | base64 -d > "output/$name_modifie";
+                    if [ ! -d "output" ]; then
+                        mkdir output 2>/dev/null;
+                    fi
+                    cat "deciphered_output.txt" | base64 -d > "output/$name_modifie" 2>/dev/null;
                     rm "deciphered_output.txt";
                     break
                 fi

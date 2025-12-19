@@ -44,9 +44,7 @@ do
 
     date_creation=$(echo "$fichier" | cut -d":" -f2);
     contenu_cle=$(echo "$fichier" | cut -d":" -f3);
-    if [ -z "$contenu_cle" ]; then
-        echo $nom_fichier:$date_creation:$contenu_cle
-    fi
+    echo $nom_fichier:$date_creation:$contenu_cle
 done
 
 exit 0;
