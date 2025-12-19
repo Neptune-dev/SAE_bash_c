@@ -103,18 +103,17 @@ output_dir="$DEST_DIR";
 # Créer un dossier temporaire pour l'extraction
 mkdir -p "$output_dir";
 #si jamais on ne peut pas mkdir: erreur liée à la décompression donc même code d'erreur: 3
-if [ $? -ne 0 ]; then echo "Échec lors de la création du dossier temporaire pour décompression"; exit 3; fi
+if [ $? -ne 0 ]; then echo "Échec lors de la création du dossier temporaire pour décompression"; exit 2; fi
 
 # Décompression du fichier x -> extrait; z -> dezippe car .gz; f -> nom du fichier dans la commande; C -> dans le répertoire ci-contre
 tar -xzf "$fichier" -C "$output_dir";
 # si échec de la commande tar
-if [ $? -ne 0 ]; then echo "La décompression du fichier a échouée."; exit 3; fi
+if [ $? -ne 0 ]; then echo "La décompression du fichier a échouée."; exit 4; fi
 
 #s'il n y a pas de fichier logs
 if [ ! -f "$output_dir/var/log/auth.log" ]; then exit 4; fi
 #s'il n'y a pas de dossiers dans /data
-if [ $(ls $output_dir/data| wc -w) -eq 0 ]; then exit 5; fi
-
+if [ $(ls $output_dir/data| wc -w) -eq 0 ]; then exit 4; fi
 
 # Date de référence (date de dernière connexion sur le compte admin) + conversion en timestamp pour comparaison
 date_ref=$(grep -i "Accepted password for admin from" $output_dir/var/log/auth.log | tail -n 1 | cut -d" " -f1,2,3);
@@ -167,12 +166,24 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                     # update le fichier archive
                     if [ $EXPORT -eq 1 ]; then
                         sed -i "s/\($fichier:[^:]*:\).*$/\1$key_decoded:s/" "$REPERTOIRE/archives";
+                        if [ $? -ne 0 ]; then
+                            echo "Erreur lors de la mise à jour du fichier archives.";
+                            exit 3;
+                        fi
                     else
                         sed -i "s/\($fichier:[^:]*:\).*$/\1:f/" "$REPERTOIRE/archives";
+                        if [ $? -ne 0 ]; then
+                            echo "Erreur lors de la mise à jour du fichier archives.";
+                            exit 3;
+                        fi
                     fi
 
                     # decipher pour récupérer le contenu
                     ./decipher "$key_decoded" "$file_modifie" 2>/dev/null;
+                    if [ $? -ne 0 ]; then
+                        echo "Erreur lors du déchiffrement du fichier $file_modifie.";
+                        exit 4;
+                    fi
                     if [ ! -d "output" ]; then
                         mkdir output 2>/dev/null;
                     fi

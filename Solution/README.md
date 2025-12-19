@@ -103,6 +103,27 @@ Affiche la liste des archives .gz disponibles, permet d'en choisir une et la dé
 5. **Code d'erreur 5 :**
    Si le dossier `/data/` est vide.
 
+### 6. `restore-archive.sh`
+
+**Paramètres :** `output_directory`
+
+
+**Description:**
+Dézippe l'archive choisie par l'utilisateur parmi toutes les archives disponibles dans le répertoire .sh-toolbox pour la stocker dans le répertoire `output_directory`.
+Ce script détecte ensuite les paires de fichiers cryptés et clairs afin d'appeler l'exécutable `findkey` afin de pouvoir récupérer la clé et de la stocker dans `.sh-toolbox/archives`. Ce script appelle ensuite l'exécutable `decipher` afin de déchiffrer l'intégralité des fichiers et de mettre le résultat final dans un dossier `output` présent dans le répertoire courant.
+
+0. **Code de retours :**
+   Tout fonctionne.
+1. **Code d'erreur 1 :**
+   Si le dossier `.sh-toolbox` n'existe pas.
+2. **Code d'erreur 2 :**
+   Le dossier de destination n'a pas pu être créé.
+3. **Code d'erreur 3 :**
+   La mise à jour du fichier archives à échouée
+4. **Code d'erreur 4 :**
+   Si un des fichiers n'a pas pu être restaurée
+   
+
 # Guide de la partie C
 
 Ce guide décrit les fichiers disponibles dans le projet C et leurs fonctionnalités.
