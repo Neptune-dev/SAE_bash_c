@@ -1,6 +1,8 @@
 .vscode
 .vs
 
+Solution/.sh-toolbox
+
 Solution/src/*.o
 Solution/src/*.exe
 Solution/src/*.a

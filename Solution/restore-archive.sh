@@ -177,7 +177,7 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                         mkdir output 2>/dev/null;
                     fi
                     cat "deciphered_output.txt" | base64 -d > "output/$name_modifie" 2>/dev/null;
-                    rm "deciphered_output.txt";
+                    rm "deciphered_output.txt" 2>/dev/null;
                     break
                 fi
             fi
