@@ -132,9 +132,11 @@ find "$output_dir/data" -type f | while read -r file_modifie; do
                     key_decoded=$(echo "$key" | base64 -d 2>/dev/null);
                     echo "  Clé: $key_decoded"
 
-                    final_file=$(./decipher "$key_decoded" "$file_modifie" 2>/dev/null);
-                    final_file_decoded=$(cat "deciphered_output.txt" | base64 -d 2>/dev/null);
-                    echo "$final_file_decoded";
+                    # decipher pour récupérer le contenu
+                    ./decipher "$key_decoded" "$file_modifie" 2>/dev/null;
+                    mkdir output;
+                    cat "deciphered_output.txt" | base64 -d > "output/$name_modifie";
+                    rm "deciphered_output.txt";
                     break
                 fi
             fi

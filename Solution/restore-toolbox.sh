@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ./ls-toolbox.sh
 code_erreur=$?
 REPERTOIRE=.sh-toolbox;
